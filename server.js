@@ -4,6 +4,14 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 4000;
 
+// ✅ تمكين CORS لجميع الطلبات
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // بدّل * بدومين معين لو أردت
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
 app.use(express.json());
 
 // تسجيل الدخولات
@@ -26,7 +34,7 @@ app.get('/log', (req, res) => {
   res.json({ status: "ok", logged: now });
 });
 
-// صفحة الجدول العصرية
+// صفحة الجدول العصرية (مع عمود الوقت المحلي إذا وُجد)
 app.get('/', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -56,7 +64,7 @@ app.get('/', (req, res) => {
           margin: 0; padding: 0;
         }
         .container {
-          max-width: 800px;
+          max-width: 900px;
           margin: 38px auto 0 auto;
           background: rgba(44,51,63,0.92);
           border-radius: 20px;
@@ -102,6 +110,11 @@ app.get('/', (req, res) => {
           font-weight: bold;
           letter-spacing: 1.3px;
         }
+        .localtime {
+          color: #06d6a0;
+          font-size: 16px;
+          font-weight: bold;
+        }
         .ip { color: #d1d5db; font-size: 12px; }
         @media (max-width: 700px) {
           .container { padding: 8px; }
@@ -115,21 +128,24 @@ app.get('/', (req, res) => {
         <table>
           <tr>
             <th>#</th>
-            <th>Date</th>
-            <th>Time</th>
+            <th>Date (UTC)</th>
+            <th>Time (UTC)</th>
+            <th>Local Time</th>
             <th>IP</th>
             <th>User Agent</th>
           </tr>
           ${
-            logs.length === 0 ? `<tr><td colspan="5">No entries yet</td></tr>` :
+            logs.length === 0 ? `<tr><td colspan="6">No entries yet</td></tr>` :
             logs.map((e,i) => {
-              let d = new Date(e.ts || e.date || "");
+              let d = new Date(e.isoTime || e.ts || e.date || "");
               let date = d.toLocaleDateString();
               let time = d.toLocaleTimeString();
+              let localTime = e.localTime || "-";
               return `<tr>
                 <td>${logs.length-i}</td>
                 <td class="date">${date}</td>
                 <td class="time">${time}</td>
+                <td class="localtime">${localTime}</td>
                 <td class="ip">${e.ip || ""}</td>
                 <td style="max-width:230px;overflow-wrap:anywhere;">${(e.userAgent||"").replace(/</g,"&lt;")}</td>
               </tr>`;
