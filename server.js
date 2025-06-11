@@ -4,9 +4,9 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// ✅ تمكين CORS لجميع الطلبات
+// ✅ Enable CORS for all requests
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // بدّل * بدومين معين لو أردت
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
@@ -14,7 +14,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// تسجيل الدخولات
+// سجل كل دخول جديد
 app.post('/log', (req, res) => {
   const now = new Date();
   const time = now.toISOString();
@@ -34,19 +34,25 @@ app.get('/log', (req, res) => {
   res.json({ status: "ok", logged: now });
 });
 
-// صفحة الجدول العصرية (مع عمود الوقت المحلي إذا وُجد)
+// زر حذف الكل
+app.post('/delete-all', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
+  res.json({ status: 'all_deleted' });
+});
+
+// صفحة الجدول العصرية مع الزر
 app.get('/', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
   if (fs.existsSync(pathLog)) {
     const lines = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean);
     logs = lines.map(line => {
-      // date, ip, data
       const [date, ip, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
       let info = {};
       try { info = JSON.parse(data); } catch {}
       return { date, ip, ...info };
-    }).reverse(); // آخر سجل بالأعلى
+    }).reverse();
   }
 
   res.send(`
@@ -60,8 +66,7 @@ app.get('/', (req, res) => {
         body {
           background: linear-gradient(135deg, #232526 0%, #393e46 100%);
           font-family: 'Segoe UI', Arial, sans-serif;
-          color: #fff;
-          margin: 0; padding: 0;
+          color: #fff; margin: 0; padding: 0;
         }
         .container {
           max-width: 900px;
@@ -77,6 +82,21 @@ app.get('/', (req, res) => {
           letter-spacing: 2px;
           color: #4ade80;
         }
+        .delete-btn {
+          display: block;
+          margin: 0 auto 20px auto;
+          background: linear-gradient(90deg,#ef4444 30%,#f59e42 100%);
+          color: #fff;
+          font-weight: bold;
+          font-size: 16px;
+          border: none;
+          border-radius: 8px;
+          padding: 11px 32px;
+          cursor: pointer;
+          box-shadow: 0 2px 10px #2224;
+          transition: 0.18s;
+        }
+        .delete-btn:hover { opacity: 0.85; }
         table {
           width: 100%;
           border-collapse: collapse;
@@ -119,12 +139,14 @@ app.get('/', (req, res) => {
         @media (max-width: 700px) {
           .container { padding: 8px; }
           table, th, td { font-size: 13px; }
+          .delete-btn { font-size: 14px; padding: 9px 10px; }
         }
       </style>
     </head>
     <body>
       <div class="container">
         <h1>Applicant Access Log</h1>
+        <button class="delete-btn" onclick="deleteAllLogs()">DELETE ALL</button>
         <table>
           <tr>
             <th>#</th>
@@ -156,6 +178,14 @@ app.get('/', (req, res) => {
           &copy; ${new Date().getFullYear()} | MILANO Log Dashboard
         </div>
       </div>
+      <script>
+        function deleteAllLogs() {
+          if(confirm("Are you sure you want to delete all logs?")) {
+            fetch('/delete-all', {method:'POST'})
+              .then(() => window.location.reload());
+          }
+        }
+      </script>
     </body>
     </html>
   `);
