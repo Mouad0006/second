@@ -57,10 +57,10 @@ app.get('/', (req, res) => {
 
   // Helper: لون الحالة
   function statusColor(status) {
-    if (status == 200) return 'background:#16c784;color:#fff;font-weight:bold;';
-    if (status == 302) return 'background:#facc15;color:#222;font-weight:bold;';
-    if (!status) return 'background:#eee;color:#888;';
-    return 'background:#dc2626;color:#fff;font-weight:bold;';
+    if (status == 200) return 'background:#21d19f;color:#fff;font-weight:600;';
+    if (status == 302) return 'background:#ffe066;color:#2a2a2a;font-weight:600;';
+    if (!status) return 'background:#282b34;color:#bbb;';
+    return 'background:#e74c3c;color:#fff;font-weight:600;';
   }
 
   res.send(`
@@ -70,79 +70,105 @@ app.get('/', (req, res) => {
       <meta charset="utf-8">
       <title>Applicant Access Log</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href="https://fonts.googleapis.com/css?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
       <style>
         body {
-          background: #181818;
-          color: #eee;
-          font-family: 'Segoe UI', Arial, sans-serif;
+          background: linear-gradient(135deg, #181a21 0%, #24243e 100%);
+          color: #e4e8ef;
+          font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
           margin: 0;
           padding: 0;
+          min-height: 100vh;
         }
         .container {
-          max-width: 900px;
-          margin: 35px auto;
-          background: #23272e;
-          border-radius: 16px;
-          box-shadow: 0 10px 24px rgba(0,0,0,.13);
-          padding: 26px 22px 30px 22px;
+          max-width: 980px;
+          margin: 38px auto 0 auto;
+          background: rgba(36,36,62, 0.97);
+          border-radius: 20px;
+          box-shadow: 0 16px 32px rgba(35,35,50,.21);
+          padding: 36px 18px 32px 18px;
+          backdrop-filter: blur(2.5px);
         }
         h1 {
           text-align: center;
-          font-size: 2rem;
-          color: #38bdf8;
-          letter-spacing: 1px;
+          font-size: 2.1rem;
+          color: #21d19f;
+          letter-spacing: 1.2px;
+          font-weight: 800;
+          margin-bottom: 22px;
+          text-shadow: 0 2px 10px #1d303c6b;
+          font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
         }
         table {
           width: 100%;
           border-collapse: collapse;
-          margin-top: 32px;
-          font-size: 1rem;
-          background: #23272e;
+          margin-top: 24px;
+          background: transparent;
         }
         th, td {
-          padding: 8px 12px;
+          padding: 13px 10px;
           text-align: center;
         }
         th {
-          background: #0f172a;
-          color: #5eead4;
-          font-weight: bold;
+          background: #23253a;
+          color: #21d19f;
+          font-weight: 800;
+          font-size: 1.03em;
+          letter-spacing: 0.5px;
+          border-bottom: 2.5px solid #21d19f44;
         }
         tr {
-          border-bottom: 1px solid #374151;
+          border-bottom: 1px solid #282b34;
+          transition: background 0.25s;
+        }
+        tr:hover {
+          background: #22233199;
         }
         tr:last-child { border-bottom: none; }
         .status-cell {
-          border-radius: 10px;
-          min-width: 62px;
+          border-radius: 13px;
+          min-width: 64px;
           display: inline-block;
-          padding: 5px 10px;
+          padding: 6px 13px;
+          font-size: 1em;
+          box-shadow: 0 2px 9px #181a2166;
+          transition: background 0.3s, color 0.3s;
         }
         .delete-btn {
-          background: #dc2626;
+          background: linear-gradient(90deg, #ff5858, #f09819);
           color: #fff;
           border: none;
-          border-radius: 8px;
-          padding: 11px 36px;
-          font-size: 1.1rem;
-          margin-top: 16px;
+          border-radius: 10px;
+          padding: 14px 48px;
+          font-size: 1.18rem;
+          margin-top: 26px;
           cursor: pointer;
-          transition: background 0.2s;
-          font-weight: 600;
-          letter-spacing: 1px;
+          font-weight: 800;
+          letter-spacing: 1.2px;
+          box-shadow: 0 4px 14px #e74c3c1c;
+          transition: background 0.23s;
         }
         .delete-btn:hover {
-          background: #991b1b;
+          background: linear-gradient(90deg, #e74c3c, #fbc631);
         }
-        @media (max-width: 700px) {
-          .container { padding: 4px 2px; }
-          table { font-size: 0.85rem;}
+        @media (max-width: 800px) {
+          .container { padding: 10px 2px; }
+          th, td { font-size: 0.93em; padding: 7px 4px; }
         }
+        @media (max-width: 550px) {
+          table, th, td { font-size: 0.81em; }
+        }
+        ::selection {
+          background: #21d19f66;
+        }
+        /* سكرول بار أنيق */
+        ::-webkit-scrollbar { width: 8px; background: #212332; border-radius: 6px;}
+        ::-webkit-scrollbar-thumb { background: #21d19f77; border-radius: 8px;}
       </style>
     </head>
     <body>
       <div class="container">
-        <h1>Applicant Access Log</h1>
+        <h1>📝 Applicant Access Log</h1>
         <table>
           <tr>
             <th>Time</th>
@@ -157,7 +183,7 @@ app.get('/', (req, res) => {
               <td>${log.date || ''}</td>
               <td>${log.ip || ''}</td>
               <td>${log.localTime || ''}</td>
-              <td style="font-size:0.93em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+              <td style="font-size:0.94em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
               <td>
                 <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
               </td>
@@ -166,7 +192,7 @@ app.get('/', (req, res) => {
           `).join('')}
         </table>
         <form method="POST" action="/delete-all" onsubmit="return confirm('Delete all records?');" style="text-align:center;">
-          <button class="delete-btn" type="submit">DELETE ALL</button>
+          <button class="delete-btn" type="submit">🗑️ DELETE ALL</button>
         </form>
       </div>
     </body>
