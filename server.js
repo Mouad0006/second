@@ -46,6 +46,7 @@ app.get('/', (req, res) => {
       const [date, ip, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
       let info = {};
       try { info = JSON.parse(data); } catch {}
+      // تقسيم الوقت: اليوم و الساعة
       let localTime = info.localTime || '';
       let isoDate = '';
       if (info.isoTime) {
@@ -57,6 +58,19 @@ app.get('/', (req, res) => {
       return { date, ip, ...info, localDate: isoDate, localHour: localTime };
     }).reverse();
   }
+
+  // 🟢 فلترة: أول 200 فقط لكل clientId كل 5 دقائق
+  const lastSeen = {}; // clientId => آخر وقت ms
+  const result = [];
+  logs.forEach(log => {
+    if (log.status == 200 && log.clientId) {
+      const nowTime = new Date(log.date).getTime();
+      if (!lastSeen[log.clientId] || nowTime - lastSeen[log.clientId] > 5 * 60 * 1000) { // 5 دقائق
+        lastSeen[log.clientId] = nowTime;
+        result.push(log);
+      }
+    }
+  });
 
   function statusColor(status) {
     if (status == 200) return 'background:#21d19f;color:#fff;font-weight:600;';
@@ -184,7 +198,7 @@ app.get('/', (req, res) => {
             <th>IP</th>
             <th>User Agent</th>
           </tr>
-          ${logs.map(log => `
+          ${result.map(log => `
             <tr>
               <td><b>${log.localDate || ''}</b></td>
               <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
