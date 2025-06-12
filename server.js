@@ -79,6 +79,18 @@ app.get('/', (req, res) => {
     return 'background:#e74c3c;color:#fff;font-weight:600;';
   }
 
+  // 🟢 ترتيب العملاء حسب clientId
+  const clientList = [];
+  function getClientLabel(log) {
+    let idx = clientList.indexOf(log.clientId);
+    if (idx === -1) {
+      clientList.push(log.clientId);
+      idx = clientList.length - 1;
+    }
+    const orderNames = ["FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT", "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"];
+    return orderNames[idx] || `CLIENT ${idx + 1}`;
+  }
+
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -198,17 +210,32 @@ app.get('/', (req, res) => {
             <th>IP</th>
             <th>User Agent</th>
           </tr>
-          ${result.map(log => `
-            <tr>
-              <td><b>${log.localDate || ''}</b></td>
-              <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
-              <td>
-                <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
-              </td>
-              <td>${log.ip || ''}</td>
-              <td style="font-size:0.82em;word-break:break-all">${log.userAgent || ''}</td>
-            </tr>
-          `).join('')}
+          ${(() => {
+            const clientList = [];
+            return result.map(log => {
+              let idx = clientList.indexOf(log.clientId);
+              if (idx === -1) {
+                clientList.push(log.clientId);
+                idx = clientList.length - 1;
+              }
+              const orderNames = [
+                "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
+                "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
+              ];
+              const clientLabel = orderNames[idx] || `CLIENT ${idx + 1}`;
+              return `
+                <tr>
+                  <td><b>${log.localDate || ''}</b></td>
+                  <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
+                  <td>
+                    <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
+                  </td>
+                  <td>${log.ip || ''}</td>
+                  <td style="font-size:1.03em;font-weight:700;color:#21d19f;letter-spacing:1.2px;">${clientLabel}</td>
+                </tr>
+              `;
+            }).join('');
+          })()}
         </table>
         <form method="POST" action="/delete-all" onsubmit="return confirm('Delete all records?');" style="text-align:center;">
           <button class="delete-btn" type="submit">🗑️ DELETE ALL</button>
