@@ -46,7 +46,6 @@ app.get('/', (req, res) => {
       const [date, ip, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
       let info = {};
       try { info = JSON.parse(data); } catch {}
-      // تقسيم الوقت: اليوم و الساعة
       let localTime = info.localTime || '';
       let isoDate = '';
       if (info.isoTime) {
@@ -84,7 +83,7 @@ app.get('/', (req, res) => {
           min-height: 100vh;
         }
         .container {
-          max-width: 1050px;
+          max-width: 950px;
           margin: 38px auto 0 auto;
           background: rgba(40,42,73, 0.97);
           border-radius: 28px;
@@ -183,7 +182,6 @@ app.get('/', (req, res) => {
             <th>Time</th>
             <th>Status</th>
             <th>IP</th>
-            <th>Page</th>
             <th>User Agent</th>
           </tr>
           ${logs.map(log => `
@@ -194,7 +192,6 @@ app.get('/', (req, res) => {
                 <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
               </td>
               <td>${log.ip || ''}</td>
-              <td style="font-size:0.94em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
               <td style="font-size:0.82em;word-break:break-all">${log.userAgent || ''}</td>
             </tr>
           `).join('')}
