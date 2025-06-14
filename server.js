@@ -201,7 +201,7 @@ app.get('/', (req, res) => {
     </head>
     <body>
       <div class="container">
-        <h1>📝 Applicant Access Log</h1>
+        <h1>SECOND SERVER </h1>
         <table>
           <tr>
             <th>Date</th>
