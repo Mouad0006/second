@@ -11,58 +11,64 @@ app.use(express.urlencoded({ extended: true }));
 const AUTH_USER = "Milano";       // اسم المستخدم
 const AUTH_PASS = "Mouad2006@";   // كلمة السر
 
-// صفحة تسجيل الدخول العصرية
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>Login | Milano Log</title>
+  <title>تسجيل الدخول | MILANO Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(120deg, #2a3454 0%, #3e8ecf 100%);
-      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
       min-height: 100vh;
-      margin: 0;
+      background: linear-gradient(125deg, #23243b 0%, #2376ae 100%);
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin: 0;
+      overflow: hidden;
     }
-    .login-container {
-      background: rgba(35, 38, 63, 0.97);
-      border-radius: 24px;
-      box-shadow: 0 10px 40px 0 #1e223950, 0 1.5px 12px 0 #2596be33;
-      padding: 38px 42px 36px 42px;
-      min-width: 345px;
-      max-width: 97vw;
+    .glass-card {
+      background: rgba(29,38,73,0.98);
+      border-radius: 22px;
+      box-shadow: 0 10px 40px 0 #00357266, 0 1.5px 14px 0 #2596be44, 0 0px 2px 1px #1fd1f977;
+      padding: 48px 38px 36px 38px;
+      min-width: 340px;
+      max-width: 96vw;
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
+      animation: cardIn 1s cubic-bezier(.72,1.3,.58,1) 1;
+    }
+    @keyframes cardIn {
+      from { transform: scale(.88) translateY(55px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);    opacity: 1; }
     }
     .logo {
-      font-size: 2.35rem;
+      font-size: 2.44rem;
       font-weight: 900;
-      background: linear-gradient(90deg, #21d19f, #2fc7fc 70%);
-      color: transparent;
+      letter-spacing: 2.1px;
+      background: linear-gradient(90deg,#1fd1f9 5%, #21d19f 80%);
       -webkit-background-clip: text;
       background-clip: text;
-      letter-spacing: 1.5px;
-      margin-bottom: 10px;
-      text-align: center;
-      text-shadow: 0 3px 18px #23b5e68c;
+      color: transparent;
+      margin-bottom: 18px;
+      text-shadow: 0 3px 18px #23b5e68c, 0 1px 5px #26d7c444;
+      transition: letter-spacing .18s;
     }
+    .glass-card:hover .logo { letter-spacing: 2.8px; }
     h2 {
       color: #21d19f;
-      margin: 10px 0 28px 0;
-      font-size: 1.31rem;
-      font-weight: 800;
-      letter-spacing: 1.2px;
+      margin: 7px 0 29px 0;
+      font-size: 1.29rem;
+      font-weight: 900;
+      letter-spacing: 1.15px;
       text-align: center;
-      text-shadow: 0 1px 10px #1d303c8c;
+      text-shadow: 0 1px 11px #1fd1f988;
     }
     .login-form {
       width: 100%;
@@ -78,19 +84,21 @@ function loginPage(error = "") {
     .input-box input {
       width: 100%;
       padding: 15px 16px 15px 44px;
-      font-size: 1.12rem;
+      font-size: 1.13rem;
       background: #222842;
-      border: 2px solid #21d19f44;
+      border: 2.2px solid #21d19f55;
       color: #f3fcff;
       border-radius: 11px;
       outline: none;
       font-family: inherit;
       font-weight: 700;
-      transition: border 0.2s, background 0.23s;
+      box-shadow: 0 2px 9px #181a2144;
+      transition: border 0.21s, background 0.24s, box-shadow .28s;
     }
     .input-box input:focus {
-      border-color: #21d19f;
-      background: #243058;
+      border-color: #1fd1f9;
+      background: #253968;
+      box-shadow: 0 5px 19px #2fc7fc33;
     }
     .input-box .icon {
       position: absolute;
@@ -98,64 +106,81 @@ function loginPage(error = "") {
       top: 50%;
       transform: translateY(-50%);
       color: #21d19f;
-      font-size: 1.16em;
+      font-size: 1.13em;
       opacity: 0.86;
       pointer-events: none;
+      transition: color 0.19s;
+    }
+    .input-box input:focus ~ .icon {
+      color: #1fd1f9;
+      opacity: 1;
     }
     .login-btn {
       width: 100%;
-      background: linear-gradient(90deg, #21d19f 10%, #2fc7fc 100%);
+      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
       color: #fff;
-      font-size: 1.23rem;
-      padding: 13px 0;
+      font-size: 1.18rem;
+      padding: 14px 0;
       border: none;
-      border-radius: 13px;
+      border-radius: 14px;
       font-weight: 900;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.32px;
       cursor: pointer;
-      margin-top: 8px;
-      box-shadow: 0 5px 17px #21d19f33;
-      transition: background 0.2s;
+      margin-top: 12px;
+      box-shadow: 0 6px 18px #1fd1f933, 0 2px 7px #21d19f22;
+      transition: background 0.22s, box-shadow 0.18s, transform .18s;
+      transform: translateY(0);
+      outline: none;
+      border-bottom: 2px solid #1fd1f9;
     }
     .login-btn:hover {
-      background: linear-gradient(90deg, #2fc7fc 10%, #21d19f 100%);
+      background: linear-gradient(90deg, #21d19f 5%, #1fd1f9 100%);
+      box-shadow: 0 8px 22px #2fc7fc3a, 0 5px 10px #21d19f33;
+      transform: translateY(-4px) scale(1.025);
+      border-bottom: 3.5px solid #21d19f;
+      letter-spacing: 2.5px;
     }
     .error-msg {
       color: #e74c3c;
-      font-weight: 800;
-      font-size: 1.02em;
+      font-weight: 900;
+      font-size: 1.09em;
       text-align: center;
-      margin-bottom: 10px;
-      margin-top: -10px;
-      letter-spacing: 1.1px;
+      margin-bottom: 11px;
+      margin-top: -8px;
+      letter-spacing: 1.13px;
+      background: #fff5f5;
+      padding: 7px 0 3px 0;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px #e74c3c21;
     }
     @media (max-width: 600px) {
-      .login-container { padding: 19px 6vw; min-width: 80vw; }
-      .logo { font-size: 1.38rem; }
+      .glass-card { padding: 22px 3vw; min-width: 90vw;}
+      .logo { font-size: 1.34rem;}
     }
   </style>
 </head>
 <body>
-  <form class="login-container" method="POST" autocomplete="off">
+  <form class="glass-card" method="POST" autocomplete="off">
     <div class="logo">MILANO Log</div>
-    <h2>تسجيل الدخول إلى لوحة المتابعة</h2>
+    <h2>لوحة المتابعة المحمية</h2>
     ${error ? `<div class="error-msg">${error}</div>` : ""}
     <div class="login-form">
       <div class="input-box">
-        <span class="icon">👤</span>
         <input name="username" type="text" required placeholder="اسم المستخدم" autocomplete="username">
+        <span class="icon">👤</span>
       </div>
       <div class="input-box">
-        <span class="icon">🔒</span>
         <input name="password" type="password" required placeholder="كلمة المرور" autocomplete="current-password">
+        <span class="icon">🔒</span>
       </div>
-      <button class="login-btn" type="submit">تسجيل الدخول</button>
+      <button class="login-btn" type="submit">دخول</button>
     </div>
   </form>
 </body>
 </html>
 `;
 }
+
 
 // 🟢 عرض صفحة تسجيل الدخول عند أي دخول (GET)
 app.get('/', (req, res) => {
