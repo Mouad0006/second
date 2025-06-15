@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 // 🟢 إعدادات الدخول
 const AUTH_USER = "Milano";       // اسم المستخدم
 const AUTH_PASS = "Mouad2006@";   // كلمة السر
-const SESSION_SECRET = "@123@"; // سر الجلسة
+const SESSION_SECRET = "@321@"; // سر الجلسة
 
 // دالة توليد كود الجلسة
 function createSession(user) {
