@@ -74,45 +74,50 @@ function loginPage(error = "") {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      margin-bottom: 8px;
+      gap: 15px;
+      margin-bottom: 6px;
     }
     .input-box {
       position: relative;
       width: 100%;
+      margin-bottom: 0px;
+      display: flex;
+      align-items: center;
     }
     .input-box input {
-      width: 100%;
-      padding: 15px 16px 15px 44px;
-      font-size: 1.13rem;
-      background: #222842;
-      border: 2.2px solid #21d19f55;
-      color: #f3fcff;
-      border-radius: 11px;
+      flex: 1;
+      padding: 14px 16px 14px 42px;
+      font-size: 1.09rem;
+      background: rgba(30, 34, 55, 0.94);
+      border: 2.1px solid #21d19f55;
+      color: #e7eef7;
+      border-radius: 13px;
       outline: none;
       font-family: inherit;
       font-weight: 700;
-      box-shadow: 0 2px 9px #181a2144;
+      box-shadow: 0 3px 17px #21d19f18, 0 1px 2px #0001;
       transition: border 0.21s, background 0.24s, box-shadow .28s;
+      margin-bottom: 8px;
+      box-sizing: border-box;
     }
     .input-box input:focus {
       border-color: #1fd1f9;
-      background: #253968;
-      box-shadow: 0 5px 19px #2fc7fc33;
+      background: rgba(32, 46, 89, 0.97);
+      box-shadow: 0 4px 19px #1fd1f933;
     }
     .input-box .icon {
       position: absolute;
-      left: 12px;
+      left: 14px;
       top: 50%;
       transform: translateY(-50%);
-      color: #21d19f;
-      font-size: 1.13em;
-      opacity: 0.86;
+      color: #1fd1f9;
+      font-size: 1.18em;
+      opacity: 0.82;
       pointer-events: none;
       transition: color 0.19s;
     }
     .input-box input:focus ~ .icon {
-      color: #1fd1f9;
+      color: #21d19f;
       opacity: 1;
     }
     .login-btn {
@@ -133,7 +138,7 @@ function loginPage(error = "") {
       outline: none;
       border-bottom: 2px solid #1fd1f9;
     }
-    .login-btn:hover {
+    .login-btn:hover, .login-btn:focus {
       background: linear-gradient(90deg, #21d19f 5%, #1fd1f9 100%);
       box-shadow: 0 8px 22px #2fc7fc3a, 0 5px 10px #21d19f33;
       transform: translateY(-4px) scale(1.025);
@@ -180,6 +185,7 @@ function loginPage(error = "") {
 </html>
 `;
 }
+
 
 
 // 🟢 عرض صفحة تسجيل الدخول عند أي دخول (GET)
