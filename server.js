@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // إعدادات الدخول
-const AUTH_USER = "admin";
-const AUTH_PASS = "mypass123";
+const AUTH_USER = "Milano";
+const AUTH_PASS = "Mouad2006@";
 
 // دالة صفحة تسجيل الدخول (الإنجليزية - تصميم احترافي)
 function loginPage(error = "") {
