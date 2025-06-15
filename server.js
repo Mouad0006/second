@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto'); // 🟢 نحتاجه للتشفير
+const crypto = require('crypto');
 const app = express();
 const port = process.env.PORT || 4000;
 
@@ -9,11 +9,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 🟢 إعدادات الدخول
-const AUTH_USER = "Milano";
-const AUTH_PASS = "Mouad2006@";
-const SESSION_SECRET = "change_this_secret"; // أي نص طويل وصعب (سري)
+const AUTH_USER = "Milano";       // اسم المستخدم
+const AUTH_PASS = "Mouad2006@";   // كلمة السر
+const SESSION_SECRET = "change_this_secret"; // سر الجلسة
 
-// 🟢 دالة توليد كود جلسة
+// دالة توليد كود الجلسة
 function createSession(user) {
   const expires = Date.now() + 1000 * 60 * 60 * 2; // ساعتان
   const data = JSON.stringify({ user, expires });
@@ -35,16 +35,15 @@ function verifySession(token) {
   }
 }
 
-// 🟢 Middleware للتحقق من الجلسة
+// Middleware للتحقق من الجلسة
 function requireLogin(req, res, next) {
   const cookie = req.headers.cookie || "";
   const token = (cookie.match(/milano_session=([^;]+)/) || [])[1];
   if (token && verifySession(token)) return next();
-  // إذا لم يسجل دخول، عرض واجهة تسجيل عصرية
   res.send(loginPage());
 }
 
-// 🟢 صفحة تسجيل الدخول العصرية
+// صفحة تسجيل الدخول العصرية
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
@@ -190,25 +189,34 @@ function loginPage(error = "") {
 `;
 }
 
-// 🟢 معالجة POST تسجيل الدخول
+// معالجة POST تسجيل الدخول مع حل إعادة التوجيه
 app.post('/', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
     const token = createSession(username);
-    res.setHeader('Set-Cookie', `milano_session=${token}; Path=/; HttpOnly`);
-    res.redirect('/');
+    res.setHeader('Set-Cookie', `milano_session=${token}; Path=/; HttpOnly; SameSite=Lax`);
+    res.send(`
+      <html>
+        <head>
+          <meta http-equiv="refresh" content="0;url=/" />
+          <script>window.location = "/";</script>
+        </head>
+        <body></body>
+      </html>
+    `);
   } else {
     res.send(loginPage("خطأ في اسم المستخدم أو كلمة المرور!"));
   }
 });
 
-// 🟢 صفحة الجدول (تحميها بالجلسة)
+// صفحة الجدول الرئيسية (احفظ كود الجدول العصري هنا داخل هذا الروت)
 app.get('/', requireLogin, (req, res) => {
-  // ... كود الجدول كامل هنا (نفس كودك السابق) ...
-  // فقط انسخ كود الجدول الذي سبق وأرسلته لك بالكامل هنا في هذا المكان
+  // === ضع هنا كود الجدول الذي أرسلته لك سابقاً بالكامل (من كود صفحة العرض الجدول العصري) ===
+  // إذا احتجت الكود مجمّع أرسله لك فوراً
+  res.send(`<div style="text-align:center;color:#21d19f;font-size:2em;padding:50px;">جدول المتابعة هنا...</div>`);
 });
 
-// 🟢 أضف نفس الحماية لأي route أخرى تريدها:
+// احمِ routes الإضافية أيضاً:
 app.post('/delete-all', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
@@ -216,7 +224,6 @@ app.post('/delete-all', requireLogin, (req, res) => {
 });
 
 app.get('/log', requireLogin, (req, res) => {
-  // يمكنك حماية log إذا أردت (أو تتركها عامة)
   res.json({ status: "ok" });
 });
 
