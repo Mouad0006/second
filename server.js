@@ -488,7 +488,22 @@ app.post('/', (req, res) => {
       })()}
     </table>
     <form method="POST" action="/delete-all" onsubmit="return confirm('Are you sure you want to delete all records?');" style="text-align:center;">
-      <button class="delete-btn" type="submit">🗑️ DELETE ALL</button>
+      <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+      <script>
+      function deleteAllLogs(e) {
+       e.preventDefault();
+       if (!confirm('Are you sure you want to delete all records?')) return;
+       fetch('/delete-all', { method: 'POST' })
+        .then(res => res.json())
+        .then(json => {
+          if (json.status === 'all_deleted') {
+            // تحديث الصفحة أو حذف الصفوف من الجدول مباشرة
+            location.reload(); // أو يمكنك إزالة الصفوف بدون ريفريش
+          }
+        });
+    }
+    </script>
+
     </form>
   </div>
 </body>
