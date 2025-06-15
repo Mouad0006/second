@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 🟢 إعدادات الدخول
-const AUTH_USER = "admin";       // اسم المستخدم
-const AUTH_PASS = "mypass123";   // كلمة السر
+const AUTH_USER = "Milano";       // اسم المستخدم
+const AUTH_PASS = "Mouad2006@";   // كلمة السر
 
 function loginPage(error = "") {
   return `
