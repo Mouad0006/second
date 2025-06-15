@@ -14,10 +14,10 @@ const AUTH_PASS = "Mouad2006@";   // كلمة السر
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <title>تسجيل الدخول | MILANO Log</title>
+  <title>Login | MILANO Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -167,24 +167,25 @@ function loginPage(error = "") {
 <body>
   <form class="glass-card" method="POST" autocomplete="off">
     <div class="logo">MILANO Log</div>
-    <h2>لوحة المتابعة المحمية</h2>
+    <h2>Sign in to the control panel</h2>
     ${error ? `<div class="error-msg">${error}</div>` : ""}
     <div class="login-form">
       <div class="input-box">
-        <input name="username" type="text" required placeholder="اسم المستخدم" autocomplete="username">
+        <input name="username" type="text" required placeholder="Username" autocomplete="username">
         <span class="icon">👤</span>
       </div>
       <div class="input-box">
-        <input name="password" type="password" required placeholder="كلمة المرور" autocomplete="current-password">
+        <input name="password" type="password" required placeholder="Password" autocomplete="current-password">
         <span class="icon">🔒</span>
       </div>
-      <button class="login-btn" type="submit">دخول</button>
+      <button class="login-btn" type="submit">Sign In</button>
     </div>
   </form>
 </body>
 </html>
 `;
 }
+
 
 
 
@@ -254,10 +255,10 @@ app.post('/', (req, res) => {
 
     res.send(`
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>سجل محاولات الحجز | MILANO Log</title>
+  <title>Booking Log | MILANO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -352,8 +353,8 @@ app.post('/', (req, res) => {
     }
     th i {
       font-style: normal;
-      font-size: 1.12em;
-      margin-left: 5px;
+      font-size: 1.11em;
+      margin-right: 4px;
       color: #21d19f99;
     }
     tr {
@@ -437,14 +438,14 @@ app.post('/', (req, res) => {
 </head>
 <body>
   <div class="container">
-    <h1>📝 سجل محاولات الحجز</h1>
+    <h1>📝 Booking Attempts Log</h1>
     <table>
       <tr>
-        <th><i>📅</i> اليوم</th>
-        <th><i>⏰</i> الساعة</th>
-        <th><i>✅</i> الحالة</th>
-        <th><i>🌐</i> الـIP</th>
-        <th><i>👤</i> الجهاز</th>
+        <th><i>📅</i> Date</th>
+        <th><i>⏰</i> Time</th>
+        <th><i>✅</i> Status</th>
+        <th><i>🌐</i> IP</th>
+        <th><i>💻</i> Client</th>
       </tr>
       ${(() => {
         const clientList = [];
@@ -474,13 +475,14 @@ app.post('/', (req, res) => {
         }).join('');
       })()}
     </table>
-    <form method="POST" action="/delete-all" onsubmit="return confirm('Delete all records?');" style="text-align:center;">
-      <button class="delete-btn" type="submit">🗑️ حذف الكل</button>
+    <form method="POST" action="/delete-all" onsubmit="return confirm('Are you sure you want to delete all records?');" style="text-align:center;">
+      <button class="delete-btn" type="submit">🗑️ DELETE ALL</button>
     </form>
   </div>
 </body>
 </html>
 `);
+
 
   } else {
     res.send(loginPage("خطأ في اسم المستخدم أو كلمة المرور!"));
