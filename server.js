@@ -14,6 +14,13 @@ const port = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.post('/log', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const line = `${new Date().toISOString()},${ip},${JSON.stringify(req.body)}\n`;
+  fs.appendFileSync(pathLog, line);
+  res.json({ ok: true });
+});
 
 // 🟢 إعدادات الدخول
 const AUTH_USER = "Milano";       // اسم المستخدم
