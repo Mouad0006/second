@@ -210,9 +210,15 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// صفحة اختيار المدينة
-function cityButtonsPage() {
-  const cities = ["casablanca", "nador", "tangier", "tetouan", "agadir", "rabat"];
+function cityTablePage(cityTables) {
+  const cities = [
+    { id: "casablanca", label: "Casablanca" },
+    { id: "nador", label: "Nador" },
+    { id: "tangier", label: "Tangier" },
+    { id: "tetouan", label: "Tetouan" },
+    { id: "agadir", label: "Agadir" },
+    { id: "rabat", label: "Rabat" }
+  ];
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -223,43 +229,110 @@ function cityButtonsPage() {
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
     body { background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
-      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; }
-    .city-container {
-      background: rgba(34, 38, 59, 0.97); border-radius:28px; box-shadow:0 12px 40px #00357244;
-      padding: 40px 30px 35px 30px; display:flex; flex-direction:column; align-items:center; min-width:350px;
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh;
+      display:flex; justify-content:center; align-items:center; flex-direction:column; }
+    h1 {
+      text-align: center;
+      font-size: 2.17rem;
+      color: #ee3445;
+      letter-spacing: 2.2px;
+      font-weight: 900;
+      margin-bottom: 34px;
+      text-shadow: 0 4px 20px #ee344455, 0 1px 10px #ee344455;
+      position: relative;
     }
-    h1 { color:#1fd1f9; font-weight:900; letter-spacing:2px; margin-bottom:30px; font-size:2rem;}
-    .cities { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;}
+    .city-bar {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
     .city-btn {
-      background:linear-gradient(90deg,#1fd1f9 5%,#21d19f 100%);
-      color:#fff; font-size:1.19rem; font-weight:900; letter-spacing:1.2px;
-      padding: 22px 15px; border:none; border-radius:14px; box-shadow:0 4px 14px #21d19f44;
-      cursor:pointer; transition: background 0.2s, transform .14s, box-shadow .22s;
+      background: linear-gradient(90deg, #ff4747 0%, #ff7676 100%);
+      color: #fff;
+      font-size: 1.12rem;
+      font-weight: 900;
+      letter-spacing: 1.18px;
+      padding: 18px 36px;
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 3px 18px #ee344544, 0 1.5px 5px #ee344544;
+      cursor: pointer;
+      transition: background .19s, box-shadow .19s, transform .18s, width .42s cubic-bezier(.22,1.2,.58,1.1);
+      position: relative;
+      z-index: 2;
+      outline: none;
+      min-width: 138px;
     }
-    .city-btn:hover {
-      background:linear-gradient(90deg,#21d19f 5%,#1fd1f9 100%);
-      box-shadow:0 6px 22px #1fd1f9cc;
-      transform: scale(1.05) translateY(-2px);
-      color:#23243b;
+    .city-btn.active, .city-btn:focus {
+      background: linear-gradient(90deg, #ee3445 0%, #c42039 100%);
+      box-shadow: 0 8px 22px #ee344577, 0 1.5px 9px #ee344533;
+      color: #fff;
+      transform: scale(1.085) translateY(-5px);
+      min-width: 260px;
     }
-    @media (max-width:600px) { .city-container {min-width:95vw;padding:18px 2vw;} .cities{grid-template-columns:1fr 1fr;gap:14px;} }
+    .city-content {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      margin-top: -5px;
+      background: rgba(34,38,59,0.98);
+      border-radius: 0 0 22px 22px;
+      box-shadow: 0 8px 32px #ee344522, 0 1.5px 9px #21d19f33;
+      padding: 0 18px 30px 18px;
+      opacity: 0;
+      height: 0;
+      pointer-events: none;
+      overflow: hidden;
+      transform: scaleY(0.9);
+      transition: opacity 0.3s cubic-bezier(.35,1.5,.58,1.05), height .45s cubic-bezier(.55,1.33,.54,1), transform .35s;
+      will-change: opacity, height;
+      position: relative;
+      z-index: 1;
+    }
+    .city-content.active {
+      opacity: 1;
+      pointer-events: auto;
+      height: auto;
+      transform: scaleY(1.02);
+      margin-bottom: 25px;
+      transition-delay: .09s;
+    }
+    @media (max-width:900px){ .city-content{padding:0 2vw 10vw 2vw;} .city-btn{padding:10px 14px;} }
+    @media (max-width:600px){ .city-bar{gap:10px;} .city-content{max-width:98vw;} .city-btn{font-size:.93em;} }
+    ::selection{background: #ee344544;}
+    ::-webkit-scrollbar{width:7px;background:#23243b;border-radius:6px;}
+    ::-webkit-scrollbar-thumb{background:#ee344599;border-radius:7px;}
   </style>
 </head>
 <body>
-  <div class="city-container">
-    <h1>Select a City</h1>
-    <div class="cities">
-      ${cities.map(city => `
-        <form method="GET" action="/city/${city}">
-          <button class="city-btn" type="submit">${city.charAt(0).toUpperCase() + city.slice(1)}</button>
-        </form>
-      `).join('')}
-    </div>
+  <h1>Select a City</h1>
+  <div class="city-bar">
+    ${cities.map((c, i) => `
+      <button class="city-btn" id="btn-${c.id}" onclick="openCity('${c.id}')">${c.label}</button>
+    `).join('')}
   </div>
+  ${cities.map(c => `
+    <div class="city-content" id="content-${c.id}">
+      ${cityTables[c.id] || `<div style="color:#ccc; padding:45px 0; text-align:center; font-size:1.4em;">No records for ${c.label}.</div>`}
+    </div>
+  `).join('')}
+  <script>
+    function openCity(city) {
+      document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.city-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('btn-' + city).classList.add('active');
+      document.getElementById('content-' + city).classList.add('active');
+    }
+    // افتح أول مدينة افتراضيًا لو تريد
+    openCity('${cities[0].id}');
+  </script>
 </body>
 </html>
-  `;
+`;
 }
+
 
 app.get('/', requireLogin, (req, res) => {
   res.send(cityButtonsPage());
