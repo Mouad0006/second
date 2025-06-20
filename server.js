@@ -15,15 +15,12 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// إعدادات الجلسة
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
-// بيانات تسجيل الدخول (يمكنك تغييرها)
+// بيانات تسجيل الدخول (غيرها كما تريد)
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
-// صفحة تسجيل الدخول (تصميم احترافي انجليزي)
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
@@ -199,7 +196,6 @@ function loginPage(error = "") {
 `;
 }
 
-// حماية صفحة الجدول فقط
 function requireLogin(req, res, next) {
   if (req.session && req.session.loggedIn) return next();
   res.send(loginPage());
@@ -209,14 +205,69 @@ function requireLogin(req, res, next) {
 app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  // سجل كامل الكائن المرسل من العميل (يدعم id, sentAt ... إلخ)
   const line = `${new Date().toISOString()},${ip},${JSON.stringify(req.body)}\n`;
   fs.appendFileSync(pathLog, line);
   res.json({ ok: true });
 });
 
-// صفحة الجدول (محمية بتسجيل الدخول)
+// صفحة اختيار المدينة
+function cityButtonsPage() {
+  const cities = ["casablanca", "nador", "tangier", "tetouan", "agadir", "rabat"];
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Select City | MILANO Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    body { background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+    .city-container {
+      background: rgba(34, 38, 59, 0.97); border-radius:28px; box-shadow:0 12px 40px #00357244;
+      padding: 40px 30px 35px 30px; display:flex; flex-direction:column; align-items:center; min-width:350px;
+    }
+    h1 { color:#1fd1f9; font-weight:900; letter-spacing:2px; margin-bottom:30px; font-size:2rem;}
+    .cities { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;}
+    .city-btn {
+      background:linear-gradient(90deg,#1fd1f9 5%,#21d19f 100%);
+      color:#fff; font-size:1.19rem; font-weight:900; letter-spacing:1.2px;
+      padding: 22px 15px; border:none; border-radius:14px; box-shadow:0 4px 14px #21d19f44;
+      cursor:pointer; transition: background 0.2s, transform .14s, box-shadow .22s;
+    }
+    .city-btn:hover {
+      background:linear-gradient(90deg,#21d19f 5%,#1fd1f9 100%);
+      box-shadow:0 6px 22px #1fd1f9cc;
+      transform: scale(1.05) translateY(-2px);
+      color:#23243b;
+    }
+    @media (max-width:600px) { .city-container {min-width:95vw;padding:18px 2vw;} .cities{grid-template-columns:1fr 1fr;gap:14px;} }
+  </style>
+</head>
+<body>
+  <div class="city-container">
+    <h1>Select a City</h1>
+    <div class="cities">
+      ${cities.map(city => `
+        <form method="GET" action="/city/${city}">
+          <button class="city-btn" type="submit">${city.charAt(0).toUpperCase() + city.slice(1)}</button>
+        </form>
+      `).join('')}
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
 app.get('/', requireLogin, (req, res) => {
+  res.send(cityButtonsPage());
+});
+
+// صفحة جدول المدينة
+app.get('/city/:city', requireLogin, (req, res) => {
+  const { city } = req.params;
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let result = [];
   if (fs.existsSync(pathLog)) {
@@ -225,7 +276,6 @@ app.get('/', requireLogin, (req, res) => {
         const [date, ip, infoRaw] = line.split(',', 3);
         let info = {};
         try { info = JSON.parse(infoRaw); } catch {}
-        // التحويل للعرض بالجدول
         let localDate = "";
         let localHour = "";
         if (info.sentAt) {
@@ -236,195 +286,52 @@ app.get('/', requireLogin, (req, res) => {
           } catch {}
         }
         return { date, ip, ...info, localDate, localHour };
-      }).reverse();
+      }).filter(log => log.city && log.city.toLowerCase() === city.toLowerCase())
+        .reverse();
   }
-  // واجهة الجدول المتطورة + زر الحذف العصري
+  // استخدم نفس واجهة الجدول العصرية السابقة مع عنوان المدينة
   res.send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Booking Log | MILANO</title>
+  <title>${city.charAt(0).toUpperCase() + city.slice(1)} Log | MILANO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
-      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      overflow-x: hidden;
-    }
-    .container {
-      margin-top: 48px;
-      width: 98vw;
-      max-width: 1000px;
-      background: rgba(34, 38, 59, 0.98);
-      border-radius: 28px;
-      box-shadow: 0 12px 40px 0 #00357266, 0 2px 16px 0 #1fd1f955, 0 0px 2px 1px #21d19f77;
-      padding: 40px 15px 35px 15px;
-      animation: fadeInUp 0.88s cubic-bezier(.72,1.3,.58,1) 1;
-      backdrop-filter: blur(2.8px);
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(60px) scale(.93);}
-      to { opacity: 1; transform: translateY(0) scale(1);}
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.17rem;
-      color: #1fd1f9;
-      letter-spacing: 2.2px;
-      font-weight: 900;
-      margin-bottom: 34px;
-      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 4px 20px #21d19f33, 0 1px 10px #1fd1f933;
-      position: relative;
-    }
-    h1::after {
-      content: '';
-      display: block;
-      margin: 0 auto;
-      margin-top: 13px;
-      height: 4px;
-      width: 64px;
-      border-radius: 6px;
-      background: linear-gradient(90deg,#1fd1f9 5%,#21d19f 100%);
-      opacity: 0.48;
-      box-shadow: 0 2px 8px #21d19f44;
-      animation: shine 2.8s linear infinite;
-    }
-    @keyframes shine {
-      0% {opacity:.25;}
-      50% {opacity:1;}
-      100% {opacity:.25;}
-    }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin-top: 18px;
-      background: rgba(33, 41, 66, 0.98);
-      box-shadow: 0 5px 24px #21d19f26;
-      border-radius: 18px;
-      overflow: hidden;
-      font-size: 1.08em;
-      animation: fadeTable 1.4s;
-    }
-    @keyframes fadeTable {
-      from {opacity:0;transform:scale(.97);}
-      to {opacity:1;transform:scale(1);}
-    }
-    th, td {
-      padding: 17px 7px;
-      text-align: center;
-      border: none;
-    }
-    th {
-      background: linear-gradient(90deg, #222a42 60%, #21d19f22 100%);
-      color: #1fd1f9;
-      font-weight: 900;
-      font-size: 1.14em;
-      letter-spacing: 1.15px;
-      border-bottom: 2.7px solid #21d19f44;
-      user-select: none;
-      transition: background .22s;
-      position: relative;
-    }
-    th i {
-      font-style: normal;
-      font-size: 1.11em;
-      margin-right: 4px;
-      color: #21d19f99;
-    }
-    tr {
-      transition: background 0.22s;
-    }
-    tr:nth-child(even) {
-      background: #23243b77;
-    }
-    tr:hover {
-      background: linear-gradient(90deg, #1fd1f925 15%, #2fc7fc10 100%);
-      box-shadow: 0 2px 10px #1fd1f933;
-      cursor: pointer;
-    }
+    body { background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; overflow-x:hidden;}
+    .container { margin-top:48px; width:98vw; max-width:1000px; background:rgba(34,38,59,0.98); border-radius:28px; box-shadow:0 12px 40px #00357266, 0 2px 16px #1fd1f955, 0 0px 2px 1px #21d19f77; padding:40px 15px 35px 15px; animation:fadeInUp 0.88s cubic-bezier(.72,1.3,.58,1) 1; backdrop-filter:blur(2.8px);}
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
+    h1 { text-align:center; font-size:2.17rem; color:#1fd1f9; letter-spacing:2.2px; font-weight:900; margin-bottom:34px; background:linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 4px 20px #21d19f33, 0 1px 10px #1fd1f933; position:relative;}
+    h1::after {content:'';display:block;margin:0 auto;margin-top:13px;height:4px;width:64px;border-radius:6px;background:linear-gradient(90deg,#1fd1f9 5%,#21d19f 100%);opacity:0.48;box-shadow:0 2px 8px #21d19f44;animation:shine 2.8s linear infinite;}
+    @keyframes shine {0% {opacity:.25;}50% {opacity:1;}100% {opacity:.25;}}
+    table { width:100%; border-collapse:separate; border-spacing:0; margin-top:18px; background:rgba(33,41,66,0.98); box-shadow:0 5px 24px #21d19f26; border-radius:18px; overflow:hidden; font-size:1.08em; animation:fadeTable 1.4s;}
+    @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
+    th, td {padding:17px 7px;text-align:center;border:none;}
+    th {background:linear-gradient(90deg, #222a42 60%, #21d19f22 100%);color:#1fd1f9;font-weight:900;font-size:1.14em;letter-spacing:1.15px;border-bottom:2.7px solid #21d19f44;user-select:none;transition:background .22s;position:relative;}
+    th i {font-style:normal;font-size:1.11em;margin-right:4px;color:#21d19f99;}
+    tr {transition:background 0.22s;}
+    tr:nth-child(even) {background:#23243b77;}
+    tr:hover {background:linear-gradient(90deg, #1fd1f925 15%, #2fc7fc10 100%);box-shadow:0 2px 10px #1fd1f933;cursor:pointer;}
     tr:last-child { border-bottom: none; }
-    .status-cell {
-      border-radius: 12px;
-      min-width: 66px;
-      display: inline-block;
-      padding: 8px 15px;
-      font-size: 1em;
-      box-shadow: 0 2px 9px #181a2166;
-      transition: background 0.3s, color 0.3s;
-      font-weight: 900;
-      letter-spacing: 1.15px;
-    }
-    .status-200 {
-      background:#21d19f;
-      color:#fff;
-      box-shadow: 0 2px 8px #21d19f55;
-      border: 2.1px solid #1fd1f9aa;
-    }
-    .status-302 {
-      background: #ffe066;
-      color: #2a2a2a;
-      border: 2.1px solid #ffe066;
-    }
-    .status-other {
-      background: #e74c3c;
-      color: #fff;
-      border: 2.1px solid #e74c3c;
-    }
-    .status-null {
-      background: #282b34;
-      color: #bbb;
-      border: 2.1px solid #222b33;
-    }
-    .delete-btn {
-      background: linear-gradient(90deg, #ff5858, #21d19f 90%);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 54px;
-      font-size: 1.17rem;
-      margin: 33px auto 0 auto;
-      cursor: pointer;
-      font-weight: 900;
-      letter-spacing: 1.2px;
-      box-shadow: 0 6px 18px #e74c3c33, 0 2px 7px #21d19f22;
-      transition: background 0.23s, box-shadow 0.19s, transform .17s;
-      display: block;
-    }
-    .delete-btn:hover {
-      background: linear-gradient(90deg, #21d19f 5%, #ff5858 100%);
-      box-shadow: 0 8px 24px #e74c3c44, 0 5px 10px #21d19f33;
-      transform: scale(1.045) translateY(-4px);
-      letter-spacing: 2px;
-    }
-    @media (max-width: 900px) {
-      .container { padding: 7px 2px; }
-      th, td { font-size: 0.96em; padding: 11px 2px; }
-    }
-    @media (max-width: 600px) {
-      table, th, td { font-size: 0.78em; }
-      .container { max-width: 100vw; }
-      th { font-size: 1.05em; }
-    }
-    ::selection { background: #1fd1f966; }
-    ::-webkit-scrollbar { width: 7px; background: #23243b; border-radius: 6px;}
-    ::-webkit-scrollbar-thumb { background: #21d19fbb; border-radius: 7px;}
+    .status-cell {border-radius:12px;min-width:66px;display:inline-block;padding:8px 15px;font-size:1em;box-shadow:0 2px 9px #181a2166;transition:background 0.3s,color 0.3s;font-weight:900;letter-spacing:1.15px;}
+    .status-200 {background:#21d19f;color:#fff;box-shadow:0 2px 8px #21d19f55;border:2.1px solid #1fd1f9aa;}
+    .status-302 {background: #ffe066; color: #2a2a2a; border: 2.1px solid #ffe066;}
+    .status-other {background: #e74c3c; color: #fff; border: 2.1px solid #e74c3c;}
+    .status-null {background: #282b34; color: #bbb; border: 2.1px solid #222b33;}
+    .delete-btn {background:linear-gradient(90deg, #ff5858, #21d19f 90%);color:#fff;border:none;border-radius:14px;padding:16px 54px;font-size:1.17rem;margin:33px auto 0 auto;cursor:pointer;font-weight:900;letter-spacing:1.2px;box-shadow:0 6px 18px #e74c3c33, 0 2px 7px #21d19f22;transition:background 0.23s, box-shadow 0.19s, transform .17s;display:block;}
+    .delete-btn:hover {background:linear-gradient(90deg, #21d19f 5%, #ff5858 100%);box-shadow:0 8px 24px #e74c3c44, 0 5px 10px #21d19f33;transform:scale(1.045) translateY(-4px);letter-spacing:2px;}
+    @media (max-width:900px){.container{padding:7px 2px;}th,td{font-size:0.96em;padding:11px 2px;}}
+    @media (max-width:600px){table,th,td{font-size:0.78em;}.container{max-width:100vw;}th{font-size:1.05em;}}
+    ::selection {background: #1fd1f966;}
+    ::-webkit-scrollbar {width:7px;background:#23243b;border-radius:6px;}
+    ::-webkit-scrollbar-thumb {background:#21d19fbb;border-radius:7px;}
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📝 Booking Attempts Log</h1>
+    <h1>📝 Log - ${city.charAt(0).toUpperCase() + city.slice(1)}</h1>
     <table>
       <tr>
         <th><i>📅</i> Date</th>
@@ -481,14 +388,12 @@ app.get('/', requireLogin, (req, res) => {
 `);
 });
 
-// صفحة الحذف
 app.post('/delete-all', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
   res.json({ status: 'all_deleted' });
 });
 
-// صفحة POST تسجيل الدخول
 app.post('/', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
@@ -502,4 +407,3 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
-
