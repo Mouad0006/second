@@ -85,7 +85,6 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// صفحة المدن والجداول المتحركة العصرية
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let allLogs = [];
@@ -106,66 +105,131 @@ app.get('/', requireLogin, (req, res) => {
       return { date, ip, ...info, localDate, localHour };
     });
   }
-  const cities = ["casablanca", "nador", "tangier", "tetouan", "agadir", "rabat"];
-  // جهز جدول لكل مدينة
+  const visaTypesCasa = [
+    { id: "c1", label: "C1" },
+    { id: "c2", label: "C2" },
+    { id: "work", label: "Work" },
+    { id: "nat", label: "Nat" },
+    { id: "std", label: "STD" },
+    { id: "famr", label: "FAMR" }
+  ];
+  const cities = [
+    { id: "casablanca", label: "Casablanca" },
+    { id: "nador", label: "Nador" },
+    { id: "tangier", label: "Tangier" },
+    { id: "tetouan", label: "Tetouan" },
+    { id: "agadir", label: "Agadir" },
+    { id: "rabat", label: "Rabat" }
+  ];
+  // جهز جدول لكل مدينة (مع أزرار الأنواع لكازا)
   const cityTables = {};
-  for (const city of cities) {
+  for (const city of cities.map(c => c.id)) {
     const logs = allLogs.filter(l => l.city && l.city.toLowerCase() === city);
     if (!logs.length) continue;
-    cityTables[city] = `
-    <table style="width:100%; border-collapse:separate; border-spacing:0; margin-top:15px; background:rgba(33,41,66,0.98); box-shadow:0 5px 24px #21d19f26; border-radius:18px; overflow:hidden; font-size:1.08em;">
-      <tr>
-        <th style="background:#1a1c27;color:#fff;">Date</th>
-        <th style="background:#1a1c27;color:#fff;">Time</th>
-        <th style="background:#1a1c27;color:#fff;">Status</th>
-        <th style="background:#1a1c27;color:#fff;">IP</th>
-        <th style="background:#1a1c27;color:#fff;">Client</th>
-      </tr>
-      ${(() => {
-        const clientList = [];
-        return logs.map(log => {
-          let idx = clientList.indexOf(log.clientId);
-          if (idx === -1) {
-            clientList.push(log.clientId);
-            idx = clientList.length - 1;
+    // كازا: قسم للجداول حسب الأنواع
+    if (city === "casablanca") {
+      cityTables[city] = `
+        <div class="sub-bar">
+          ${visaTypesCasa.map(t => `<button class="sub-btn" id="subbtn-${t.id}" onclick="openVisaType('${t.id}')">${t.label}</button>`).join('')}
+        </div>
+        ${visaTypesCasa.map(t => `
+          <div class="sub-content" id="subcontent-${t.id}">
+            ${(() => {
+              const sublogs = logs.filter(log => (log.visa || "").toLowerCase() === t.id);
+              if (!sublogs.length) return `<div style="color:#ccc; padding:40px 0; text-align:center; font-size:1.18em;">No records for ${t.label}.</div>`;
+              const clientList = [];
+              return `
+              <table>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>IP</th>
+                  <th>Client</th>
+                </tr>
+                ${sublogs.map(log => {
+                  let idx = clientList.indexOf(log.clientId);
+                  if (idx === -1) {
+                    clientList.push(log.clientId);
+                    idx = clientList.length - 1;
+                  }
+                  const orderNames = [
+                    "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
+                    "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
+                  ];
+                  const clientLabel = orderNames[idx] || `CLIENT ${idx + 1}`;
+                  let statusClass = log.status == 200 ? 'status-200' : (log.status == 302 ? 'status-302' : (log.status ? 'status-other' : 'status-null'));
+                  return `
+                    <tr>
+                      <td><b>${log.localDate || ''}</b></td>
+                      <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
+                      <td><span class="status-cell ${statusClass}">${log.status ? log.status : '-'}</span></td>
+                      <td>${log.ip || ''}</td>
+                      <td style="font-size:1.03em;font-weight:700;color:#1fd1f9;letter-spacing:1.2px;">${clientLabel}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </table>
+              <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+              `;
+            })()}
+          </div>
+        `).join('')}
+        <script>
+          function openVisaType(visaId) {
+            document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.sub-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('subbtn-' + visaId).classList.add('active');
+            document.getElementById('subcontent-' + visaId).classList.add('active');
           }
-          const orderNames = [
-            "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
-            "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
-          ];
-          const clientLabel = orderNames[idx] || `CLIENT ${idx + 1}`;
-          let statusClass = log.status == 200 ? 'status-200' : (log.status == 302 ? 'status-302' : (log.status ? 'status-other' : 'status-null'));
-          return `
-            <tr>
-              <td><b>${log.localDate || ''}</b></td>
-              <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
-              <td>
-                <span class="status-cell ${statusClass}">${log.status ? log.status : '-'}</span>
-              </td>
-              <td>${log.ip || ''}</td>
-              <td style="font-size:1.03em;font-weight:700;color:#1fd1f9;letter-spacing:1.2px;">${clientLabel}</td>
-            </tr>
-          `;
-        }).join('');
-      })()}
-    </table>
-    <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
-    <script>
-      function deleteAllLogs(e) {
-        e.preventDefault();
-        if (!confirm('Are you sure you want to delete all records?')) return;
-        fetch('/delete-all', { method: 'POST' })
-          .then(res => res.json())
-          .then(json => {
-            if (json.status === 'all_deleted') {
-              location.reload();
+          // فتح النوع الأول افتراضيًا
+          openVisaType('${visaTypesCasa[0].id}');
+        </script>
+      `;
+    } else {
+      // المدن الأخرى نفس الجدول العادي
+      cityTables[city] = `
+      <table>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>IP</th>
+          <th>Client</th>
+        </tr>
+        ${(() => {
+          const clientList = [];
+          return logs.map(log => {
+            let idx = clientList.indexOf(log.clientId);
+            if (idx === -1) {
+              clientList.push(log.clientId);
+              idx = clientList.length - 1;
             }
-          });
-      }
-    </script>
-    `;
+            const orderNames = [
+              "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
+              "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
+            ];
+            const clientLabel = orderNames[idx] || `CLIENT ${idx + 1}`;
+            let statusClass = log.status == 200 ? 'status-200' : (log.status == 302 ? 'status-302' : (log.status ? 'status-other' : 'status-null'));
+            return `
+              <tr>
+                <td><b>${log.localDate || ''}</b></td>
+                <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
+                <td>
+                  <span class="status-cell ${statusClass}">${log.status ? log.status : '-'}</span>
+                </td>
+                <td>${log.ip || ''}</td>
+                <td style="font-size:1.03em;font-weight:700;color:#1fd1f9;letter-spacing:1.2px;">${clientLabel}</td>
+              </tr>
+            `;
+          }).join('');
+        })()}
+      </table>
+      <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+      `;
+    }
   }
-  // صفحة الأزرار المتحركة العصري
+
   res.send(`
 <!DOCTYPE html>
 <html lang="en">
@@ -184,12 +248,17 @@ app.get('/', requireLogin, (req, res) => {
     .city-btn.active, .city-btn:focus { background: linear-gradient(90deg, #ee3445 0%, #c42039 100%); box-shadow: 0 8px 22px #ee344577, 0 1.5px 9px #ee344533; color: #fff; transform: scale(1.085) translateY(-5px); min-width: 260px;}
     .city-content { width: 100%; max-width: 1060px; margin: 0 auto; margin-top: -5px; background: rgba(34,38,59,0.98); border-radius: 0 0 22px 22px; box-shadow: 0 8px 32px #ee344522, 0 1.5px 9px #21d19f33; padding: 0 18px 30px 18px; opacity: 0; height: 0; pointer-events: none; overflow: hidden; transform: scaleY(0.9); transition: opacity 0.3s cubic-bezier(.35,1.5,.58,1.05), height .45s cubic-bezier(.55,1.33,.54,1), transform .35s; will-change: opacity, height; position: relative; z-index: 1;}
     .city-content.active { opacity: 1; pointer-events: auto; height: auto; transform: scaleY(1.02); margin-bottom: 25px; transition-delay: .09s;}
-    @media (max-width:900px){ .city-content{padding:0 2vw 10vw 2vw;} .city-btn{padding:10px 14px;} }
+    /* الأزرار الفرعية */
+    .sub-bar { display: flex; gap: 12px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;}
+    .sub-btn { background: linear-gradient(90deg, #ff4747 0%, #ff7676 100%); color: #fff; font-size: 1.07rem; font-weight: 900; letter-spacing: 1.1px; padding: 12px 34px; border: none; border-radius: 12px; box-shadow: 0 3px 14px #ee344544, 0 1.5px 5px #ee344544; cursor: pointer; transition: background .19s, box-shadow .19s, transform .18s, width .42s cubic-bezier(.22,1.2,.58,1.1); position: relative; z-index: 2; outline: none; min-width: 92px;}
+    .sub-btn.active, .sub-btn:focus { background: linear-gradient(90deg, #ee3445 0%, #c42039 100%); box-shadow: 0 8px 22px #ee344577, 0 1.5px 9px #ee344533; color: #fff; transform: scale(1.085) translateY(-4px); min-width: 185px;}
+    .sub-content { opacity: 0; height: 0; pointer-events: none; overflow: hidden; transform: scaleY(0.95); transition: opacity 0.3s cubic-bezier(.35,1.5,.58,1.05), height .42s cubic-bezier(.55,1.33,.54,1), transform .29s; will-change: opacity, height;}
+    .sub-content.active { opacity: 1; pointer-events: auto; height: auto; transform: scaleY(1.02); margin-bottom: 13px; transition-delay: .08s;}
+    @media (max-width:900px){ .city-content{padding:0 2vw 10vw 2vw;} .city-btn{padding:10px 14px;} .sub-btn{padding:7px 9px; min-width:70px;}}
     @media (max-width:600px){ .city-bar{gap:10px;} .city-content{max-width:98vw;} .city-btn{font-size:.93em;} }
     ::selection{background: #ee344544;}
     ::-webkit-scrollbar{width:7px;background:#23243b;border-radius:6px;}
     ::-webkit-scrollbar-thumb{background:#ee344599;border-radius:7px;}
-    /* نسخ ستايل الجدول من السابق */
     table { width:100%; border-collapse:separate; border-spacing:0; margin-top:18px; background:rgba(33,41,66,0.98); box-shadow:0 5px 24px #21d19f26; border-radius:18px; overflow:hidden; font-size:1.08em; animation:fadeTable 1.4s;}
     th, td {padding:17px 7px;text-align:center;border:none;}
     th {background:linear-gradient(90deg, #222a42 60%, #21d19f22 100%);color:#1fd1f9;font-weight:900;font-size:1.14em;letter-spacing:1.15px;border-bottom:2.7px solid #21d19f44;user-select:none;transition:background .22s;position:relative;}
@@ -209,12 +278,12 @@ app.get('/', requireLogin, (req, res) => {
   <h1>Select a City</h1>
   <div class="city-bar">
     ${cities.map((c, i) => `
-      <button class="city-btn" id="btn-${c}" onclick="openCity('${c}')">${c.charAt(0).toUpperCase() + c.slice(1)}</button>
+      <button class="city-btn" id="btn-${c.id}" onclick="openCity('${c.id}')">${c.label}</button>
     `).join('')}
   </div>
   ${cities.map(c => `
-    <div class="city-content" id="content-${c}">
-      ${cityTables[c] || `<div style="color:#ccc; padding:45px 0; text-align:center; font-size:1.4em;">No records for ${c.charAt(0).toUpperCase() + c.slice(1)}.</div>`}
+    <div class="city-content" id="content-${c.id}">
+      ${cityTables[c.id] || `<div style="color:#ccc; padding:45px 0; text-align:center; font-size:1.4em;">No records for ${c.label}.</div>`}
     </div>
   `).join('')}
   <script>
@@ -225,7 +294,7 @@ app.get('/', requireLogin, (req, res) => {
       document.getElementById('content-' + city).classList.add('active');
     }
     // افتح أول مدينة افتراضيًا
-    openCity('${cities[0]}');
+    openCity('${cities[0].id}');
   </script>
 </body>
 </html>
