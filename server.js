@@ -187,16 +187,10 @@ function loginPage(error = "") {
 }
 
 
-// 🟢 عرض صفحة تسجيل الدخول عند أي دخول (GET)
-app.get('/', (req, res) => {
-  res.send(loginPage());
-});
-
-// 🟢 معالجة POST تسجيل الدخول وإظهار الجدول مباشرة
 app.post('/', (req, res) => {
-  const { username, password } = req.body || {};
+  const { username, password, city } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
-    // تحميل السجلات وجدول العرض
+    // 🟢 تحميل السجلات
     const pathLog = path.join(__dirname, 'applicant_log.csv');
     let logs = [];
     if (fs.existsSync(pathLog)) {
@@ -217,40 +211,32 @@ app.post('/', (req, res) => {
       }).reverse();
     }
 
-    // فلترة أول 200 لكل clientId كل 5 دقائق
-    const lastSeen = {};
-    const result = [];
-    logs.forEach(log => {
-      if (log.status == 200 && log.clientId) {
-        const nowTime = new Date(log.date).getTime();
-        if (!lastSeen[log.clientId] || nowTime - lastSeen[log.clientId] > 5 * 60 * 1000) {
-          lastSeen[log.clientId] = nowTime;
-          result.push(log);
-        }
-      }
-    });
+    // 🟢 المدن المطلوبة
+    const cities = [
+      { id: "casablanca", label: "Casablanca" },
+      { id: "tangier", label: "Tangier" },
+      { id: "nador", label: "Nador" },
+      { id: "tetouan", label: "Tetouan" },
+      { id: "agadir", label: "Agadir" },
+      { id: "rabat", label: "Rabat" }
+    ];
 
-    function statusColor(status) {
-      if (status == 200) return 'background:#21d19f;color:#fff;font-weight:600;';
-      if (status == 302) return 'background:#ffe066;color:#2a2a2a;font-weight:600;';
-      if (!status) return 'background:#282b34;color:#bbb;';
-      return 'background:#e74c3c;color:#fff;font-weight:600;';
+    // 🟢 تصفية السجلات حسب المدينة
+    let filtered = logs;
+    if (city && cities.some(c => c.id === city)) {
+      filtered = logs.filter(log => String(log.city || '').toLowerCase() === city);
+    } else {
+      filtered = [];
     }
 
-    const clientList = [];
-    function getClientLabel(log) {
-      let idx = clientList.indexOf(log.clientId);
-      if (idx === -1) {
-        clientList.push(log.clientId);
-        idx = clientList.length - 1;
-      }
-      const orderNames = [
-        "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
-        "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
-      ];
-      return orderNames[idx] || `CLIENT ${idx + 1}`;
+    function statusClass(status) {
+      if (status == 200) return 'status-200';
+      if (status == 302) return 'status-302';
+      if (!status) return 'status-null';
+      return 'status-other';
     }
 
+    // 🟢 صفحة اختيار المدينة + جدول السجلات حسب الاختيار
     res.send(`
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -263,65 +249,62 @@ app.post('/', (req, res) => {
     body {
       background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
       font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
+      margin: 0; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    }
+    .cities-list {
+      margin-top: 50px;
+      display: flex; flex-wrap: wrap; gap: 28px;
       justify-content: center;
-      align-items: flex-start;
-      overflow-x: hidden;
+      animation: fadeInUp 0.8s;
+    }
+    .city-btn {
+      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
+      color: #fff;
+      font-size: 1.27rem;
+      font-weight: 900;
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 7px 26px #1fd1f955;
+      padding: 28px 44px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background 0.18s, box-shadow 0.16s, transform .16s;
+      letter-spacing: 2px;
+      outline: none;
+      border-bottom: 3.5px solid #1fd1f9;
+    }
+    .city-btn:hover, .city-btn:focus {
+      background: linear-gradient(90deg, #21d19f 5%, #1fd1f9 100%);
+      box-shadow: 0 10px 32px #2fc7fc66;
+      transform: scale(1.06) translateY(-4px);
+      letter-spacing: 3px;
+      border-bottom: 3.5px solid #21d19f;
+    }
+    .city-title {
+      margin-top: 25px; margin-bottom: 10px;
+      color: #21d19f; font-size: 2rem; font-weight: 900;
+      letter-spacing: 2.1px; text-align: center;
+      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 4px 20px #21d19f33, 0 1px 10px #1fd1f933;
     }
     .container {
-      margin-top: 48px;
+      margin-top: 10px;
       width: 98vw;
       max-width: 1000px;
       background: rgba(34, 38, 59, 0.98);
       border-radius: 28px;
       box-shadow: 0 12px 40px 0 #00357266, 0 2px 16px 0 #1fd1f955, 0 0px 2px 1px #21d19f77;
-      padding: 40px 15px 35px 15px;
+      padding: 35px 7px 28px 7px;
       animation: fadeInUp 0.88s cubic-bezier(.72,1.3,.58,1) 1;
       backdrop-filter: blur(2.8px);
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(60px) scale(.93);}
-      to { opacity: 1; transform: translateY(0) scale(1);}
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.17rem;
-      color: #1fd1f9;
-      letter-spacing: 2.2px;
-      font-weight: 900;
-      margin-bottom: 34px;
-      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 4px 20px #21d19f33, 0 1px 10px #1fd1f933;
-      position: relative;
-    }
-    h1::after {
-      content: '';
-      display: block;
-      margin: 0 auto;
-      margin-top: 13px;
-      height: 4px;
-      width: 64px;
-      border-radius: 6px;
-      background: linear-gradient(90deg,#1fd1f9 5%,#21d19f 100%);
-      opacity: 0.48;
-      box-shadow: 0 2px 8px #21d19f44;
-      animation: shine 2.8s linear infinite;
-    }
-    @keyframes shine {
-      0% {opacity:.25;}
-      50% {opacity:1;}
-      100% {opacity:.25;}
     }
     table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      margin-top: 18px;
+      margin-top: 10px;
       background: rgba(33, 41, 66, 0.98);
       box-shadow: 0 5px 24px #21d19f26;
       border-radius: 18px;
@@ -329,157 +312,69 @@ app.post('/', (req, res) => {
       font-size: 1.08em;
       animation: fadeTable 1.4s;
     }
-    @keyframes fadeTable {
-      from {opacity:0;transform:scale(.97);}
-      to {opacity:1;transform:scale(1);}
-    }
     th, td {
-      padding: 17px 7px;
-      text-align: center;
-      border: none;
+      padding: 14px 7px; text-align: center; border: none;
     }
     th {
       background: linear-gradient(90deg, #222a42 60%, #21d19f22 100%);
-      color: #1fd1f9;
-      font-weight: 900;
-      font-size: 1.14em;
-      letter-spacing: 1.15px;
-      border-bottom: 2.7px solid #21d19f44;
-      user-select: none;
-      transition: background .22s;
-      position: relative;
+      color: #1fd1f9; font-weight: 900; font-size: 1.14em; letter-spacing: 1.15px;
+      border-bottom: 2.7px solid #21d19f44; user-select: none;
     }
-    th i {
-      font-style: normal;
-      font-size: 1.11em;
-      margin-right: 4px;
-      color: #21d19f99;
-    }
-    tr {
-      transition: background 0.22s;
-    }
-    tr:nth-child(even) {
-      background: #23243b77;
-    }
-    tr:hover {
-      background: linear-gradient(90deg, #1fd1f925 15%, #2fc7fc10 100%);
-      box-shadow: 0 2px 10px #1fd1f933;
-      cursor: pointer;
-    }
-    tr:last-child { border-bottom: none; }
-    .status-cell {
-      border-radius: 12px;
-      min-width: 66px;
-      display: inline-block;
-      padding: 8px 15px;
-      font-size: 1em;
-      box-shadow: 0 2px 9px #181a2166;
-      transition: background 0.3s, color 0.3s;
-      font-weight: 900;
-      letter-spacing: 1.15px;
-    }
-    .status-200 {
-      background:#21d19f;
-      color:#fff;
-      box-shadow: 0 2px 8px #21d19f55;
-      border: 2.1px solid #1fd1f9aa;
-    }
-    .status-302 {
-      background: #ffe066;
-      color: #2a2a2a;
-      border: 2.1px solid #ffe066;
-    }
-    .status-other {
-      background: #e74c3c;
-      color: #fff;
-      border: 2.1px solid #e74c3c;
-    }
-    .status-null {
-      background: #282b34;
-      color: #bbb;
-      border: 2.1px solid #222b33;
-    }
-    .delete-btn {
-      background: linear-gradient(90deg, #ff5858, #21d19f 90%);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 54px;
-      font-size: 1.17rem;
-      margin: 33px auto 0 auto;
-      cursor: pointer;
-      font-weight: 900;
-      letter-spacing: 1.2px;
-      box-shadow: 0 6px 18px #e74c3c33, 0 2px 7px #21d19f22;
-      transition: background 0.23s, box-shadow 0.19s, transform .17s;
-      display: block;
-    }
-    .delete-btn:hover {
-      background: linear-gradient(90deg, #21d19f 5%, #ff5858 100%);
-      box-shadow: 0 8px 24px #e74c3c44, 0 5px 10px #21d19f33;
-      transform: scale(1.045) translateY(-4px);
-      letter-spacing: 2px;
-    }
-    @media (max-width: 900px) {
-      .container { padding: 7px 2px; }
-      th, td { font-size: 0.96em; padding: 11px 2px; }
-    }
-    @media (max-width: 600px) {
-      table, th, td { font-size: 0.78em; }
-      .container { max-width: 100vw; }
-      th { font-size: 1.05em; }
-    }
-    ::selection { background: #1fd1f966; }
-    ::-webkit-scrollbar { width: 7px; background: #23243b; border-radius: 6px;}
-    ::-webkit-scrollbar-thumb { background: #21d19fbb; border-radius: 7px;}
+    tr { transition: background 0.22s; }
+    tr:nth-child(even) { background: #23243b77; }
+    tr:hover { background: linear-gradient(90deg, #1fd1f925 15%, #2fc7fc10 100%); box-shadow: 0 2px 10px #1fd1f933; }
+    .status-cell { border-radius: 12px; min-width: 66px; display: inline-block; padding: 8px 15px; font-size: 1em; box-shadow: 0 2px 9px #181a2166; font-weight: 900; }
+    .status-200 { background:#21d19f;color:#fff; }
+    .status-302 { background: #ffe066;color: #2a2a2a; }
+    .status-other { background: #e74c3c;color: #fff; }
+    .status-null { background: #282b34;color: #bbb; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(60px) scale(.93);} to { opacity: 1; transform: translateY(0) scale(1);} }
+    @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);} }
+    @media (max-width: 900px) {.container { padding: 7px 2px; } th, td { font-size: 0.96em; padding: 11px 2px; } }
+    @media (max-width: 600px) {table, th, td { font-size: 0.78em; } .container { max-width: 100vw; } th { font-size: 1.05em; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📝 Booking Attempts Log</h1>
-    <table>
-      <tr>
-        <th><i>📅</i> Date</th>
-        <th><i>⏰</i> Time</th>
-        <th><i>✅</i> Status</th>
-        <th><i>🌐</i> IP</th>
-        <th><i>💻</i> Client</th>
-      </tr>
-      ${(() => {
-        const clientList = [];
-        return result.map(log => {
-          let idx = clientList.indexOf(log.clientId);
-          if (idx === -1) {
-            clientList.push(log.clientId);
-            idx = clientList.length - 1;
-          }
-          const orderNames = [
-            "FIRST CLIENT", "SECOND CLIENT", "THIRD CLIENT", "FOURTH CLIENT", "FIFTH CLIENT",
-            "SIXTH CLIENT", "SEVENTH CLIENT", "EIGHTH CLIENT", "NINTH CLIENT", "TENTH CLIENT"
-          ];
-          const clientLabel = orderNames[idx] || `CLIENT ${idx + 1}`;
-          let statusClass = log.status == 200 ? 'status-200' : (log.status == 302 ? 'status-302' : (log.status ? 'status-other' : 'status-null'));
-          return `
-            <tr>
-              <td><b>${log.localDate || ''}</b></td>
-              <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
-              <td>
-                <span class="status-cell ${statusClass}">${log.status ? log.status : '-'}</span>
-              </td>
-              <td>${log.ip || ''}</td>
-              <td style="font-size:1.03em;font-weight:700;color:#1fd1f9;letter-spacing:1.2px;">${clientLabel}</td>
-            </tr>
-          `;
-        }).join('');
-      })()}
-    </table>
-    <form method="POST" action="/delete-all" onsubmit="return confirm('Are you sure you want to delete all records?');" style="text-align:center;">
-      <button class="delete-btn" type="submit">🗑️ DELETE ALL</button>
-    </form>
+  <div class="cities-list">
+    ${cities.map(cityObj => `<button class="city-btn" onclick="selectCity('${cityObj.id}')">${cityObj.label}</button>`).join('')}
   </div>
+  ${city && cities.some(c=>c.id===city) ? `
+    <div class="city-title">${cities.find(c=>c.id===city).label} - Logs</div>
+    <div class="container">
+      <table>
+        <tr>
+          <th>📅 Date</th>
+          <th>⏰ Time</th>
+          <th>✅ Status</th>
+          <th>🌐 IP</th>
+          <th>City</th>
+        </tr>
+        ${filtered.map(log => `
+          <tr>
+            <td><b>${log.localDate || ''}</b></td>
+            <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
+            <td><span class="status-cell ${statusClass(log.status)}">${log.status ? log.status : '-'}</span></td>
+            <td>${log.ip || ''}</td>
+            <td>${log.city || ''}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+  ` : ""}
+  <form id="cityForm" method="POST" style="display:none;">
+    <input type="hidden" name="username" value="${AUTH_USER}">
+    <input type="hidden" name="password" value="${AUTH_PASS}">
+    <input type="hidden" name="city" id="cityInput">
+  </form>
+  <script>
+    function selectCity(city) {
+      document.getElementById('cityInput').value = city;
+      document.getElementById('cityForm').submit();
+    }
+  </script>
 </body>
 </html>
-`);
+    `);
 
   } else {
     res.send(loginPage("خطأ في اسم المستخدم أو كلمة المرور!"));
