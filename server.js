@@ -5,7 +5,7 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// تفعيل CORS
+// ===== CORS =====
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
-const AUTH_USER = "Milano";
-const AUTH_PASS = "Mouad2006@";
+const AUTH_USER = "admin";
+const AUTH_PASS = "mypass123";
 
 function loginPage(error = "") {
   return `
@@ -93,9 +93,10 @@ app.get('/', requireLogin, (req, res) => {
       const [date, ip, infoRaw] = line.split(',', 3);
       let info = {};
       try { info = JSON.parse(infoRaw); } catch {}
-      let localDate = "";
-      let localHour = "";
-      if (info.sentAt) {
+      // استخدم localTime و isoTime أو sentAt أو تاريخ السيرفر كنسخة احتياطية
+      let localDate = info.localTime || "";
+      let localHour = info.isoTime ? (new Date(info.isoTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })) : "";
+      if (!localDate && info.sentAt) {
         try {
           const d = new Date(info.sentAt);
           localDate = d.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
@@ -125,9 +126,8 @@ app.get('/', requireLogin, (req, res) => {
   const cityTables = {};
   for (const city of cities.map(c => c.id)) {
     const logs = allLogs.filter(l => l.city && l.city.toLowerCase() === city);
-    if (!logs.length) continue;
-    // كازا: قسم للجداول حسب الأنواع
     if (city === "casablanca") {
+      // الأزرار الفرعية للأنواع الستة
       cityTables[city] = `
         <div class="sub-bar">
           ${visaTypesCasa.map(t => `<button class="sub-btn" id="subbtn-${t.id}" onclick="openVisaType('${t.id}')">${t.label}</button>`).join('')}
@@ -182,12 +182,11 @@ app.get('/', requireLogin, (req, res) => {
             document.getElementById('subbtn-' + visaId).classList.add('active');
             document.getElementById('subcontent-' + visaId).classList.add('active');
           }
-          // فتح النوع الأول افتراضيًا
           openVisaType('${visaTypesCasa[0].id}');
         </script>
       `;
     } else {
-      // المدن الأخرى نفس الجدول العادي
+      if (!logs.length) continue;
       cityTables[city] = `
       <table>
         <tr>
@@ -229,7 +228,7 @@ app.get('/', requireLogin, (req, res) => {
       `;
     }
   }
-
+  // الواجهة الرئيسية
   res.send(`
 <!DOCTYPE html>
 <html lang="en">
@@ -266,7 +265,7 @@ app.get('/', requireLogin, (req, res) => {
     tr:nth-child(even) {background:#23243b77;}
     tr:hover {background:linear-gradient(90deg, #1fd1f925 15%, #2fc7fc10 100%);box-shadow:0 2px 10px #1fd1f933;cursor:pointer;}
     .status-cell {border-radius:12px;min-width:66px;display:inline-block;padding:8px 15px;font-size:1em;box-shadow:0 2px 9px #181a2166;transition:background 0.3s,color 0.3s;font-weight:900;letter-spacing:1.15px;}
-    .status-200 {background:#21d19f;color:#fff;box-shadow:0 2px 8px #21d19f55;border:2.1px solid #1fd1f9aa;}
+    .status-200 {background:#21d19f;color:#fff;box-shadow:0 2px 8px #21d19f55;border:2.1px solid #21d19f9aa;}
     .status-302 {background: #ffe066; color: #2a2a2a; border: 2.1px solid #ffe066;}
     .status-other {background: #e74c3c; color: #fff; border: 2.1px solid #e74c3c;}
     .status-null {background: #282b34; color: #bbb; border: 2.1px solid #222b33;}
@@ -295,6 +294,18 @@ app.get('/', requireLogin, (req, res) => {
     }
     // افتح أول مدينة افتراضيًا
     openCity('${cities[0].id}');
+    // حذف الكل
+    function deleteAllLogs(e) {
+      e.preventDefault();
+      if (!confirm('Are you sure you want to delete all records?')) return;
+      fetch('/delete-all', { method: 'POST' })
+        .then(res => res.json())
+        .then(json => {
+          if (json.status === 'all_deleted') {
+            location.reload();
+          }
+        });
+    }
   </script>
 </body>
 </html>
@@ -322,3 +333,4 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
