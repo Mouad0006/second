@@ -5,7 +5,6 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// ===== CORS =====
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -15,10 +14,11 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
-const AUTH_USER = "Milano";
-const AUTH_PASS = "Mouad2006@";
+const AUTH_USER = "admin";
+const AUTH_PASS = "mypass123";
 
 function loginPage(error = "") {
   return `
@@ -68,7 +68,7 @@ function loginPage(error = "") {
   </form>
 </body>
 </html>
-`;
+  `;
 }
 
 function requireLogin(req, res, next) {
@@ -76,7 +76,7 @@ function requireLogin(req, res, next) {
   res.send(loginPage());
 }
 
-// ======== LOG ROUTE - مفتوح للكل ========
+// تسجيل اللوج
 app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -122,12 +122,11 @@ app.get('/', requireLogin, (req, res) => {
     { id: "agadir", label: "Agadir" },
     { id: "rabat", label: "Rabat" }
   ];
-  // جهز جدول لكل مدينة (مع أزرار الأنواع لكازا)
   const cityTables = {};
   for (const city of cities.map(c => c.id)) {
     const logs = allLogs.filter(l => l.city && l.city.toLowerCase() === city);
     if (city === "casablanca") {
-      // الأزرار الفرعية للأنواع الستة
+      // بناء أزرار الأنواع الستة دائماً
       cityTables[city] = `
         <div class="sub-bar">
           ${visaTypesCasa.map(t => `<button class="sub-btn" id="subbtn-${t.id}" onclick="openVisaType('${t.id}')">${t.label}</button>`).join('')}
@@ -243,11 +242,10 @@ app.get('/', requireLogin, (req, res) => {
       display:flex; justify-content:center; align-items:center; flex-direction:column; }
     h1 { text-align: center; font-size: 2.17rem; color: #ee3445; letter-spacing: 2.2px; font-weight: 900; margin-bottom: 34px; text-shadow: 0 4px 20px #ee344455, 0 1px 10px #ee344455; position: relative;}
     .city-bar { display: flex; gap: 18px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;}
-    .city-btn { background: linear-gradient(90deg, #ff4747 0%, #ff7676 100%); color: #fff; font-size: 1.12rem; font-weight: 900; letter-spacing: 1.18px; padding: 18px 36px; border: none; border-radius: 14px; box-shadow: 0 3px 18px #ee344544, 0 1.5px 5px #ee344544; cursor: pointer; transition: background .19s, box-shadow .19s, transform .18s, width .42s cubic-bezier(.22,1.2,.58,1.1); position: relative; z-index: 2; outline: none; min-width: 138px;}
+    .city-btn { background: linear-gradient(90deg, #ff4747 0%, #ff7676 100%); color: #fff; font-size: 1.09rem; font-weight: 900; letter-spacing: 1.12px; padding: 14px 42px; border: none; border-radius: 17px; box-shadow: 0 3px 14px #ee344544, 0 1.5px 5px #ee344544; cursor: pointer; transition: background .19s, box-shadow .19s, transform .18s, width .42s cubic-bezier(.22,1.2,.58,1.1); position: relative; z-index: 2; outline: none; min-width: 138px;}
     .city-btn.active, .city-btn:focus { background: linear-gradient(90deg, #ee3445 0%, #c42039 100%); box-shadow: 0 8px 22px #ee344577, 0 1.5px 9px #ee344533; color: #fff; transform: scale(1.085) translateY(-5px); min-width: 260px;}
     .city-content { width: 100%; max-width: 1060px; margin: 0 auto; margin-top: -5px; background: rgba(34,38,59,0.98); border-radius: 0 0 22px 22px; box-shadow: 0 8px 32px #ee344522, 0 1.5px 9px #21d19f33; padding: 0 18px 30px 18px; opacity: 0; height: 0; pointer-events: none; overflow: hidden; transform: scaleY(0.9); transition: opacity 0.3s cubic-bezier(.35,1.5,.58,1.05), height .45s cubic-bezier(.55,1.33,.54,1), transform .35s; will-change: opacity, height; position: relative; z-index: 1;}
     .city-content.active { opacity: 1; pointer-events: auto; height: auto; transform: scaleY(1.02); margin-bottom: 25px; transition-delay: .09s;}
-    /* الأزرار الفرعية */
     .sub-bar { display: flex; gap: 12px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap;}
     .sub-btn { background: linear-gradient(90deg, #ff4747 0%, #ff7676 100%); color: #fff; font-size: 1.07rem; font-weight: 900; letter-spacing: 1.1px; padding: 12px 34px; border: none; border-radius: 12px; box-shadow: 0 3px 14px #ee344544, 0 1.5px 5px #ee344544; cursor: pointer; transition: background .19s, box-shadow .19s, transform .18s, width .42s cubic-bezier(.22,1.2,.58,1.1); position: relative; z-index: 2; outline: none; min-width: 92px;}
     .sub-btn.active, .sub-btn:focus { background: linear-gradient(90deg, #ee3445 0%, #c42039 100%); box-shadow: 0 8px 22px #ee344577, 0 1.5px 9px #ee344533; color: #fff; transform: scale(1.085) translateY(-4px); min-width: 185px;}
@@ -294,7 +292,6 @@ app.get('/', requireLogin, (req, res) => {
     }
     // افتح أول مدينة افتراضيًا
     openCity('${cities[0].id}');
-    // حذف الكل
     function deleteAllLogs(e) {
       e.preventDefault();
       if (!confirm('Are you sure you want to delete all records?')) return;
