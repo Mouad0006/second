@@ -17,8 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
-const AUTH_USER = "admin";
-const AUTH_PASS = "mypass123";
+const AUTH_USER = "Milano";
+const AUTH_PASS = "Mouad2006@";
 
 function loginPage(error = "") {
   return `
