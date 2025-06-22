@@ -85,7 +85,7 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// Show the full log table, including location and visa type, and correct date/time from isoTime:
+// Page for showing the full log table
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let result = [];
@@ -95,7 +95,7 @@ app.get('/', requireLogin, (req, res) => {
         const [date, ip, infoRaw] = line.split(',', 3);
         let info = {};
         try { info = JSON.parse(infoRaw); } catch {}
-        // Use isoTime for accurate date/time:
+        // --- FIX: Always parse date & time from isoTime (which always comes from calendria)
         let localDate = "";
         let localHour = "";
         if (info.isoTime) {
@@ -103,7 +103,10 @@ app.get('/', requireLogin, (req, res) => {
             const d = new Date(info.isoTime);
             localDate = d.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
             localHour = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          } catch {}
+          } catch (e) {
+            localDate = "-";
+            localHour = "-";
+          }
         }
         return { date, ip, ...info, localDate, localHour };
       }).reverse();
@@ -118,7 +121,8 @@ app.get('/', requireLogin, (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body { background: linear-gradient(135deg, #23243b 0%, #2376ae 100%); font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; overflow-x:hidden;}
+    body { background: linear-gradient(135deg, #23243b 0%, #2376ae 100%);
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; overflow-x:hidden;}
     .container { margin-top:48px; width:98vw; max-width:1200px; background:rgba(34,38,59,0.98); border-radius:28px; box-shadow:0 12px 40px #00357266, 0 2px 16px #1fd1f955, 0 0px 2px 1px #21d19f77; padding:40px 15px 35px 15px; animation:fadeInUp 0.88s cubic-bezier(.72,1.3,.58,1) 1; backdrop-filter:blur(2.8px);}
     @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 { text-align:center; font-size:2.17rem; color:#1fd1f9; letter-spacing:2.2px; font-weight:900; margin-bottom:34px; background:linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 4px 20px #21d19f33, 0 1px 10px #1fd1f933; position:relative;}
@@ -227,4 +231,3 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
-
