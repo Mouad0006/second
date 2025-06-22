@@ -5,7 +5,7 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// CORS support
+// تفعيل CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -16,12 +16,13 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// إعدادات الجلسة
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
-// Login page
+// صفحة تسجيل الدخول
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
@@ -72,11 +73,13 @@ function loginPage(error = "") {
 `;
 }
 
+// حماية صفحة الجدول فقط
 function requireLogin(req, res, next) {
   if (req.session && req.session.loggedIn) return next();
   res.send(loginPage());
 }
 
+// ======== LOG ROUTE - مفتوح للكل ========
 app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -85,7 +88,6 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// Page for showing the full log table
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let result = [];
@@ -95,7 +97,7 @@ app.get('/', requireLogin, (req, res) => {
         const [date, ip, infoRaw] = line.split(',', 3);
         let info = {};
         try { info = JSON.parse(infoRaw); } catch {}
-        // --- FIX: Always parse date & time from isoTime (which always comes from calendria)
+        // تنظيف وعرض التاريخ والساعة
         let localDate = "";
         let localHour = "";
         if (info.isoTime) {
@@ -158,8 +160,6 @@ app.get('/', requireLogin, (req, res) => {
       <tr>
         <th><i>📅</i> Date</th>
         <th><i>⏰</i> Time</th>
-        <th><i>🏙️</i> Location</th>
-        <th><i>🎫</i> Visa Type</th>
         <th><i>✅</i> Status</th>
         <th><i>🌐</i> IP</th>
         <th><i>💻</i> Client</th>
@@ -182,8 +182,6 @@ app.get('/', requireLogin, (req, res) => {
             <tr>
               <td><b>${log.localDate || ''}</b></td>
               <td style="font-family:monospace; font-size:1.11em;">${log.localHour || ''}</td>
-              <td style="color:#ee3445; font-weight:700;letter-spacing:1.1px;">${log.city ? log.city.charAt(0).toUpperCase() + log.city.slice(1) : '-'}</td>
-              <td style="color:#21d19f; font-weight:700;">${log.visa ? log.visa.toUpperCase() : '-'}</td>
               <td><span class="status-cell ${statusClass}">${log.status ? log.status : '-'}</span></td>
               <td>${log.ip || ''}</td>
               <td style="font-size:1.03em;font-weight:700;color:#1fd1f9;letter-spacing:1.2px;">${clientLabel}</td>
@@ -212,12 +210,14 @@ app.get('/', requireLogin, (req, res) => {
   `);
 });
 
+// حذف كل السجلات
 app.post('/delete-all', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
   res.json({ status: 'all_deleted' });
 });
 
+// POST تسجيل الدخول
 app.post('/', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
