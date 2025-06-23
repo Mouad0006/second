@@ -272,210 +272,166 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>🤖 MILANO Quantum Log - Year 2150</title>
+  <title>SAMURAI LOG - MILANO 2200</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Orbitron:900,700|Cairo:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
   <style>
     html, body {
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(125deg, #131530 0%, #20d6ff 150%);
-      font-family: 'Orbitron', 'Cairo', 'Segoe UI', Arial, sans-serif;
-      box-shadow: 0 0 280px #4efaff44 inset;
-      position: relative;
+      background: linear-gradient(135deg, #171b26 0%, #253348 100%);
+      font-family: 'Noto Sans JP', 'Montserrat', 'Segoe UI', Arial, sans-serif;
+      color: #eee;
       overflow-x: hidden;
+      letter-spacing: 0.04em;
     }
-    body::before {
-      /* دخان ونيون */
-      content: '';
-      position: fixed;
-      left: -40vw; top: -30vh; width: 180vw; height: 180vh;
-      background: radial-gradient(circle at 40% 40%, #3ff1fff5 0%, #08fbb030 50%, transparent 70%);
-      opacity: 0.18;
-      pointer-events: none;
-      z-index: 0;
-      animation: neonSmoke 18s linear infinite alternate;
-    }
-    @keyframes neonSmoke {
-      0% { transform: scale(1) translateY(0);}
-      100%{ transform: scale(1.2) translateY(60px);}
-    }
-    .quantum-glass {
-      margin: 62px auto 0 auto;
+    .samurai-glass {
+      margin: 55px auto 0 auto;
       width: 99vw;
-      max-width: 1290px;
-      background: linear-gradient(120deg,rgba(26,32,58,.94),rgba(50,72,110,0.95) 89%);
-      border-radius: 49px;
-      box-shadow: 0 0 130px #00e0ffc0, 0 3px 40px #22fcf8bb, 0 0px 22px 6px #ff18ff55;
-      padding: 60px 3vw 60px 3vw;
+      max-width: 1220px;
+      background: rgba(27,30,40,0.98);
+      border-radius: 40px;
+      box-shadow: 0 0 110px #ad1212a0, 0 2px 24px #c3a96f55, 0 0px 10px 2px #ffe18f38;
+      padding: 54px 2vw 48px 2vw;
       position: relative;
-      overflow: visible;
-      border: 3.8px solid #20d6ff;
-      backdrop-filter: blur(15px) brightness(1.09);
-      animation: quantumAppear 1.7s cubic-bezier(.79,1.6,.72,1) 1;
-      z-index: 1;
+      border: 2.5px solid #c3a96f;
+      animation: appear 1.25s cubic-bezier(.61,1.1,.47,1) 1;
     }
-    @keyframes quantumAppear {
-      0% { opacity: 0; transform: scale(0.85) translateY(160px);}
-      100%{ opacity: 1; transform: scale(1) translateY(0);}
+    @keyframes appear {
+      from { opacity: 0; transform: scale(0.93) translateY(70px);}
+      to { opacity: 1; transform: scale(1) translateY(0);}
     }
-    .quantum-glass:after {
-      content: '';
-      position: absolute; top:0; left:80px; right:80px; height:12px;
-      background: linear-gradient(90deg, #20d6ff 0%, #fff 30%, #ff50fa 100%);
-      filter: blur(12px) brightness(1.4) opacity(0.36);
-      border-radius: 50px;
-      z-index: 2;
-      animation: glassglow 3s linear infinite alternate;
-    }
-    @keyframes glassglow {
-      0% { filter: blur(12px) brightness(1.1) opacity(0.24);}
-      100%{ filter: blur(15px) brightness(2.2) opacity(0.45);}
-    }
-    .log-title {
+    .samurai-title {
       text-align: center;
-      font-size: 3.5rem;
-      font-family: 'Orbitron', 'Cairo', sans-serif;
-      letter-spacing: 8px;
+      font-size: 3rem;
+      font-family: 'Noto Sans JP', 'Montserrat', sans-serif;
+      letter-spacing: 9px;
       font-weight: 900;
-      margin-bottom: 45px;
-      background: linear-gradient(90deg,#fff 0%,#20d6ff 50%,#ff16ff 100%);
+      margin-bottom: 30px;
+      color: #ffe18f;
+      text-shadow: 0 4px 32px #ad1212b5, 0 1px 14px #c3a96fdd;
+      user-select: none;
+      line-height: 1.2;
+      border-bottom: 4px solid #ad1212;
+      padding-bottom: 13px;
+      background: linear-gradient(90deg, #ffe18f 60%, #ad1212 90%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 22px 80px #fff7, 0 1px 20px #20d6ff77;
-      user-select: none;
-      filter: brightness(1.18) drop-shadow(0 10px 24px #20d6ff);
-      animation: titlePulse 3.3s ease-in-out infinite alternate;
+      filter: brightness(1.09);
     }
-    @keyframes titlePulse {
-      0% { letter-spacing: 5px; filter: brightness(1.09);}
-      100%{ letter-spacing: 15px; filter: brightness(1.38);}
-    }
-    .cyber-divider {
-      height: 7px;
-      width: 92px;
-      background: linear-gradient(90deg, #20d6ff 20%, #ff16ff 80%);
-      border-radius: 16px;
-      margin: 0 auto 43px auto;
-      box-shadow: 0 4px 33px #20d6ff77, 0 1px 12px #ff18ff66;
-      animation: cyberShine 2.8s linear infinite alternate;
-    }
-    @keyframes cyberShine {
-      from {filter: blur(0);}
-      to {filter: blur(3.5px);}
+    .samurai-divider {
+      height: 6px;
+      width: 85px;
+      background: linear-gradient(90deg, #ad1212 40%, #ffe18f 100%);
+      border-radius: 11px;
+      margin: 0 auto 33px auto;
+      box-shadow: 0 4px 28px #ad1212bb, 0 1px 12px #c3a96f99;
     }
     table {
       width: 100%;
       margin: 0 auto;
-      background: linear-gradient(110deg, #202944 83%, #ff18ff12 100%);
-      box-shadow: 0 15px 55px #20d6ff22, 0 0px 9px #ff18ff33;
-      border-radius: 34px;
+      background: linear-gradient(120deg, #23262c 87%, #ad12121b 100%);
+      box-shadow: 0 6px 28px #ad121211, 0 0px 6px #ffe18f11;
+      border-radius: 24px;
       overflow: hidden;
       border-collapse: separate;
       border-spacing: 0;
-      font-size: 1.19em;
-      border: 2.5px solid #20d6ff66;
-      filter: brightness(1.12) drop-shadow(0 2px 7px #fff2);
+      font-size: 1.15em;
+      border: 1.7px solid #ad1212;
     }
     th, td {
-      padding: 23px 11px;
+      padding: 18px 8px;
       text-align: center;
       border: none;
     }
     th {
-      background: linear-gradient(90deg, #1a2644 80%, #20d6ff33 100%);
-      color: #fff;
-      font-family: 'Orbitron', 'Montserrat', 'Cairo', sans-serif;
+      background: linear-gradient(90deg, #20232a 90%, #ffe18f15 100%);
+      color: #ffe18f;
+      font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
       font-weight: 900;
-      font-size: 1.22em;
-      letter-spacing: 2.6px;
-      border-bottom: 3.5px solid #20d6ffcc;
+      font-size: 1.1em;
+      letter-spacing: 2px;
+      border-bottom: 2.2px solid #ad1212;
       user-select: none;
-      text-shadow: 0 3px 18px #20d6ff, 0 1px 14px #fff8;
-      filter: brightness(1.11);
+      text-shadow: 0 2px 10px #ad1212bb, 0 1px 5px #ffe18fcc;
     }
     tr.data-row {
       color: #fff;
       font-weight: 900;
-      font-family: 'Cairo', 'Montserrat', sans-serif;
-      text-shadow: 0 2px 23px #fff, 0 1px 12px #20d6ff;
-      background: linear-gradient(88deg, #14192e 65%, #20d6ff 135%);
-      border-radius: 13px;
-      filter: brightness(1.39);
+      font-family: 'Noto Sans JP', 'Montserrat', sans-serif;
+      background: linear-gradient(88deg, #21232b 80%, #ad1212 145%);
+      border-radius: 10px;
       transition: background .16s, box-shadow .18s;
-      box-shadow: 0 2px 23px #20d6ff11;
+      box-shadow: 0 1.5px 9px #ad121230;
+      filter: brightness(1.16);
     }
     tr.data-row:hover {
-      background: linear-gradient(90deg, #20d6ff 5%, #ff50fa 95%);
-      color: #fff;
-      box-shadow: 0 8px 29px #ff18ff44, 0 5px 19px #fff4;
-      filter: brightness(1.65);
-      border-radius: 18px;
+      background: linear-gradient(90deg, #ad1212 20%, #23262c 100%);
+      color: #ffe18f;
+      box-shadow: 0 4px 24px #ffe18f55, 0 1.5px 6px #ad1212;
+      border-radius: 14px;
+      filter: brightness(1.19);
     }
     .status-cell {
-      border-radius: 22px;
-      min-width: 88px;
+      border-radius: 14px;
+      min-width: 70px;
       display: inline-block;
-      padding: 16px 27px;
-      font-size: 1.24em;
-      box-shadow: 0 3px 25px #20d6ff99, 0 1px 13px #fff8;
+      padding: 11px 18px;
+      font-size: 1.1em;
+      box-shadow: 0 3px 12px #ffe18f28, 0 1px 7px #ad121230;
       font-weight: 900;
-      letter-spacing: 2.1px;
-      background: linear-gradient(90deg, #20d6ff 30%, #ff18ff 90%);
-      color: #fff;
-      border: 3px solid #fff2;
-      filter: brightness(1.31) drop-shadow(0 1px 11px #fff7);
-      transition: filter .21s, box-shadow .18s;
-      text-shadow: 0 1px 17px #fff9, 0 0 6px #20d6ff77;
+      letter-spacing: 1.2px;
+      background: linear-gradient(90deg, #ffe18f 50%, #ad1212 100%);
+      color: #2d2321;
+      border: 2px solid #c3a96f;
+      filter: brightness(1.07);
+      transition: filter .17s, box-shadow .15s;
+      text-shadow: 0 1px 8px #ffe18f8c, 0 0 3px #ad121288;
     }
     .delete-btn {
-      background: linear-gradient(90deg, #ff50fa 30%, #20d6ff 100%);
+      background: linear-gradient(90deg, #ad1212 60%, #ffe18f 100%);
       color: #fff;
       border: none;
-      border-radius: 23px;
-      padding: 26px 120px;
-      font-size: 1.4rem;
-      margin: 60px auto 0 auto;
+      border-radius: 14px;
+      padding: 16px 58px;
+      font-size: 1.21rem;
+      margin: 42px auto 0 auto;
       cursor: pointer;
       font-weight: 900;
-      letter-spacing: 2.5px;
-      box-shadow: 0 18px 54px #ff18ff11, 0 6px 18px #20d6ff33;
+      letter-spacing: 2px;
+      box-shadow: 0 8px 18px #ad121244, 0 3px 8px #ffe18f33;
       outline: none;
-      border-bottom: 4.6px solid #ff18ff;
+      border-bottom: 2.7px solid #c3a96f;
       display: block;
-      transition: all 0.25s;
-      animation: deletePulse 1.6s cubic-bezier(.8,.2,.6,1) infinite alternate;
-    }
-    @keyframes deletePulse {
-      from { filter: brightness(1) blur(0);}
-      to   { filter: brightness(1.7) blur(2px);}
+      transition: all 0.21s;
     }
     .delete-btn:hover {
-      background: linear-gradient(90deg, #20d6ff 5%, #ff50fa 95%);
-      box-shadow: 0 22px 52px #20d6ff44, 0 9px 24px #ff18ff99;
-      letter-spacing: 4.5px;
-      transform: scale(1.12) translateY(-6px) rotate(-2deg);
-      filter: brightness(2.1);
+      background: linear-gradient(90deg, #ffe18f 20%, #ad1212 100%);
+      box-shadow: 0 16px 40px #ad121244, 0 6px 16px #ffe18f77;
+      letter-spacing: 3.5px;
+      transform: scale(1.08) translateY(-3px) rotate(-1.5deg);
+      filter: brightness(1.15);
+      color: #ad1212;
     }
-    @media (max-width: 1200px) {
-      .quantum-glass { padding: 10px 1vw 22px 1vw; }
-      th, td { font-size: 0.95em; padding: 9px 1vw;}
+    @media (max-width: 900px) {
+      .samurai-glass { padding: 13px 1vw 21px 1vw;}
+      th, td { font-size: 0.95em; padding: 6px 1vw;}
     }
-    @media (max-width: 700px) {
-      .quantum-glass { max-width: 100vw;}
-      th { font-size: 1.08em; }
-      .delete-btn { padding: 14px 2vw;}
+    @media (max-width: 600px) {
+      .samurai-glass { max-width: 100vw; }
+      th { font-size: 1em; }
+      .delete-btn { padding: 10px 2vw;}
     }
-    ::selection { background: #20d6ff66;}
-    ::-webkit-scrollbar { width: 11px; background: #14192e; border-radius: 14px;}
-    ::-webkit-scrollbar-thumb { background: #20d6ffcc; border-radius: 14px;}
+    ::selection { background: #ffe18f33;}
+    ::-webkit-scrollbar { width: 9px; background: #1a202a; border-radius: 12px;}
+    ::-webkit-scrollbar-thumb { background: #ad1212cc; border-radius: 12px;}
   </style>
 </head>
 <body>
-  <div class="quantum-glass">
-    <h1 class="log-title">🚀 MILANO NeoLog</h1>
-    <div class="cyber-divider"></div>
+  <div class="samurai-glass">
+    <h1 class="samurai-title">武士 MILANO LOG 2200</h1>
+    <div class="samurai-divider"></div>
     <table>
       <tr>
         <th>Date</th>
@@ -488,17 +444,17 @@ app.get('/', requireLogin, (req, res) => {
       ${logs.map(log => `
         <tr class="data-row">
           <td><b>${log.day || ''}</b></td>
-          <td style="font-family:monospace; font-size:1.18em;">${log.time || ''}</td>
+          <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
           <td>
             <span class="status-cell">${log.status ? log.status : '-'}</span>
           </td>
           <td>${log.ip || ''}</td>
           <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-          <td style="font-size:0.88em;word-break:break-all">${log.userAgent || ''}</td>
+          <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
         </tr>
       `).join('')}
     </table>
-    <button class="delete-btn" onclick="deleteAllLogs(event)">🪐 DELETE ALL</button>
+    <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     <script>
       function deleteAllLogs(e) {
         e.preventDefault();
@@ -512,9 +468,6 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
-
-
-
   `);
 });
 
