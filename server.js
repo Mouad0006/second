@@ -14,24 +14,19 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// سجل كل دخول جديد
+// يسجل فقط الطلبات التي status=200
 app.post('/log', (req, res) => {
-  const now = new Date();
-  const time = now.toISOString();
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "";
-  const extra = JSON.stringify(req.body || {});
-  const logLine = `${time},${ip},${extra}\n`;
-  fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
-  res.json({ status: "ok", logged: now });
-});
-
-app.get('/log', (req, res) => {
-  const now = new Date();
-  const time = now.toISOString();
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "";
-  const logLine = `${time},${ip},GET\n`;
-  fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
-  res.json({ status: "ok", logged: now });
+  if (req.body.status == 200) { // سجل فقط إذا كان status=200
+    const now = new Date();
+    const time = now.toISOString();
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "";
+    const extra = JSON.stringify(req.body || {});
+    const logLine = `${time},${ip},${extra}\n`;
+    fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
+    res.json({ status: "ok", logged: now });
+  } else {
+    res.json({ status: "ignored" }); // تجاهل غير 200
+  }
 });
 
 // زر حذف الكل
@@ -52,7 +47,10 @@ app.get('/', (req, res) => {
       let info = {};
       try { info = JSON.parse(data); } catch {}
       return { date, ip, ...info };
-    }).reverse();
+    })
+    // يعرض فقط status=200
+    .filter(log => log.status == 200)
+    .reverse();
   }
 
   // Helper: لون الحالة
