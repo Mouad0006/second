@@ -11,12 +11,11 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
-
 app.use(express.json());
 
 // يسجل فقط الطلبات التي status=200
 app.post('/log', (req, res) => {
-  if (req.body.status == 200) { // سجل فقط إذا كان status=200
+  if (req.body.status == 200) { // فقط سجل الطلبات 200
     const now = new Date();
     const time = now.toISOString();
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "";
@@ -36,7 +35,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// صفحة الجدول العصرية مع الزر وحالة الطلب
+// صفحة الجدول العصرية
 app.get('/', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -46,7 +45,16 @@ app.get('/', (req, res) => {
       const [date, ip, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
       let info = {};
       try { info = JSON.parse(data); } catch {}
-      return { date, ip, ...info };
+      // استخراج التاريخ والساعة
+      let dateStr = info.isoTime || date || "";
+      let dateObj = dateStr ? new Date(dateStr) : null;
+      let day = "";
+      let time = "";
+      if (dateObj && !isNaN(dateObj.getTime())) {
+        day = dateObj.toLocaleDateString('en-CA'); // yyyy-mm-dd
+        time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+      return { ...info, ip, day, time, status: info.status, userAgent: info.userAgent, href: info.href };
     })
     // يعرض فقط status=200
     .filter(log => log.status == 200)
@@ -143,22 +151,22 @@ app.get('/', (req, res) => {
         <h1>Applicant Access Log</h1>
         <table>
           <tr>
+            <th>Date</th>
             <th>Time</th>
-            <th>IP</th>
-            <th>Local Time</th>
-            <th>Page</th>
             <th>Status</th>
+            <th>IP</th>
+            <th>Page</th>
             <th>User Agent</th>
           </tr>
           ${logs.map(log => `
             <tr>
-              <td>${log.date || ''}</td>
-              <td>${log.ip || ''}</td>
-              <td>${log.localTime || ''}</td>
-              <td style="font-size:0.93em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+              <td><b>${log.day || ''}</b></td>
+              <td>${log.time || ''}</td>
               <td>
                 <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
               </td>
+              <td>${log.ip || ''}</td>
+              <td style="font-size:0.93em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
               <td style="font-size:0.84em;word-break:break-all">${log.userAgent || ''}</td>
             </tr>
           `).join('')}
