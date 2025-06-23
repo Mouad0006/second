@@ -272,7 +272,7 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SAMURAI LOG - MILANO 2200</title>
+  <title>SAMURAI LOG - MILANO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
   <style>
@@ -285,6 +285,15 @@ app.get('/', requireLogin, (req, res) => {
       overflow-x: hidden;
       letter-spacing: 0.04em;
     }
+    /* Canvas فوق كل الخلفيات */
+    #sakura-bg {
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.33;
+    }
     .samurai-glass {
       margin: 55px auto 0 auto;
       width: 99vw;
@@ -296,6 +305,7 @@ app.get('/', requireLogin, (req, res) => {
       position: relative;
       border: 2.5px solid #c3a96f;
       animation: appear 1.25s cubic-bezier(.61,1.1,.47,1) 1;
+      z-index: 2;
     }
     @keyframes appear {
       from { opacity: 0; transform: scale(0.93) translateY(70px);}
@@ -429,8 +439,9 @@ app.get('/', requireLogin, (req, res) => {
   </style>
 </head>
 <body>
+  <canvas id="sakura-bg"></canvas>
   <div class="samurai-glass">
-    <h1 class="samurai-title">武士 MILANO LOG 2200</h1>
+    <h1 class="samurai-title">武士 MILANO LOG</h1>
     <div class="samurai-divider"></div>
     <table>
       <tr>
@@ -464,10 +475,88 @@ app.get('/', requireLogin, (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
+
+      // --- Sakura Petals Animation ---
+      const canvas = document.getElementById('sakura-bg');
+      const ctx = canvas.getContext('2d');
+      let width = window.innerWidth, height = window.innerHeight;
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      const petalImg = (() => {
+        // Petal SVG as image (base64 for speed)
+        let img = new window.Image();
+        img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
+        return img;
+      })();
+
+      function random(min, max) { return min + Math.random() * (max - min); }
+
+      class Petal {
+        constructor() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.7);
+          this.amp = random(8, 38);
+          this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.02, 0.02);
+          this.opacity = random(0.63, 1);
+        }
+        move() {
+          this.y += this.speed;
+          this.x += Math.sin(this.y / 32 + this.phase) * this.swing;
+          this.angle += this.spin;
+          if (this.y > height + 30) this.reset();
+        }
+        reset() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.7);
+          this.amp = random(8, 38);
+          this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.02, 0.02);
+          this.opacity = random(0.63, 1);
+        }
+        draw(ctx) {
+          ctx.save();
+          ctx.globalAlpha = this.opacity;
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.angle);
+          ctx.drawImage(petalImg, -this.r/2, -this.r/2, this.r, this.r);
+          ctx.restore();
+        }
+      }
+
+      const petals = [];
+      for(let i=0;i<32;i++) petals.push(new Petal());
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for (let petal of petals) {
+          petal.move();
+          petal.draw(ctx);
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
     </script>
   </div>
 </body>
 </html>
+
+
   `);
 });
 
