@@ -269,184 +269,209 @@ app.get('/', requireLogin, (req, res) => {
 
   res.send(`
   <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>📝 Milano Booking Log</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
-    <style>
-      body {
-        min-height: 100vh;
-        background: linear-gradient(125deg, #181928 0%, #2376ae 100%);
-        font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-      }
-      .container {
-        margin-top: 48px;
-        width: 96vw;
-        max-width: 1080px;
-        background: rgba(33,38,59,0.98);
-        border-radius: 32px;
-        box-shadow: 0 14px 48px 0 #00357288, 0 2px 24px #1fd1f977, 0 0px 4px 1px #21d19f33;
-        padding: 42px 20px 30px 20px;
-        animation: fadeInUp 1.05s cubic-bezier(.72,1.3,.58,1) 1;
-        backdrop-filter: blur(4.5px);
-      }
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(65px) scale(.92);}
-        to   { opacity: 1; transform: translateY(0) scale(1);}
-      }
-      h1 {
-        text-align: center;
-        font-size: 2.44rem;
-        font-weight: 900;
-        letter-spacing: 2.6px;
-        margin-bottom: 38px;
-        background: linear-gradient(90deg,#1fd1f9 15%,#21d19f 80%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        text-shadow: 0 6px 24px #1fd1f966, 0 1px 12px #21d19f88;
-      }
-      table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-top: 12px;
-        background: rgba(23,27,48,0.98);
-        box-shadow: 0 8px 28px #21d19f11;
-        border-radius: 20px;
-        overflow: hidden;
-        font-size: 1.09em;
-        animation: fadeTable 1.4s;
-        transition: box-shadow 0.28s;
-      }
-      @keyframes fadeTable {
-        from {opacity:0;transform:scale(.98);}
-        to {opacity:1;transform:scale(1);}
-      }
-      th, td {
-        padding: 18px 8px;
-        text-align: center;
-        border: none;
-      }
-      th {
-        background: linear-gradient(90deg, #222a42 55%, #21d19f22 100%);
-        color: #1fd1f9;
-        font-weight: 900;
-        font-size: 1.17em;
-        letter-spacing: 1.2px;
-        border-bottom: 2.7px solid #21d19f44;
-        user-select: none;
-        transition: background .22s;
-        position: relative;
-      }
-      tr { transition: background 0.22s;}
-      tr.data-row {
-        color: #fff;
-        font-weight: 900;
-        text-shadow: 0 2px 12px #21d1f9cc, 0 1px 4px #fff4;
-        background: linear-gradient(90deg, #25324b 80%, #27e4e7 150%);
-        transition: background .2s, box-shadow .21s;
-      }
-      tr.data-row:hover {
-        background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 80%);
-        color: #fff;
-        box-shadow: 0 2px 20px #1fd1f933, 0 4px 20px #fff3;
-      }
-      tr:nth-child(even) { background: #23243b77; }
-      tr:last-child { border-bottom: none; }
-      .status-cell {
-        border-radius: 14px;
-        min-width: 70px;
-        display: inline-block;
-        padding: 10px 17px;
-        font-size: 1.08em;
-        box-shadow: 0 2px 12px #181a2177;
-        transition: background 0.3s, color 0.3s;
-        font-weight: 900;
-        letter-spacing: 1.13px;
-      }
-      .delete-btn {
-        background: linear-gradient(90deg, #ff5858 25%, #21d19f 100%);
-        color: #fff;
-        border: none;
-        border-radius: 16px;
-        padding: 20px 70px;
-        font-size: 1.23rem;
-        margin: 44px auto 0 auto;
-        cursor: pointer;
-        font-weight: 900;
-        letter-spacing: 1.5px;
-        box-shadow: 0 10px 32px #e74c3c38, 0 2px 14px #21d19f33;
-        transition: background 0.24s, box-shadow 0.18s, transform .19s;
-        display: block;
-      }
-      .delete-btn:hover {
-        background: linear-gradient(90deg, #21d19f 8%, #ff5858 100%);
-        box-shadow: 0 16px 32px #e74c3c54, 0 9px 22px #21d19f29;
-        transform: scale(1.057) translateY(-5px);
-        letter-spacing: 3.1px;
-      }
-      @media (max-width: 900px) {
-        .container { padding: 7px 2px; }
-        th, td { font-size: 0.97em; padding: 12px 3px; }
-        .delete-btn { padding: 12px 0; font-size: 1.06rem; }
-      }
-      @media (max-width: 600px) {
-        table, th, td { font-size: 0.82em; }
-        .container { max-width: 100vw; }
-        th { font-size: 1.06em; }
-      }
-      ::selection { background: #1fd1f966; }
-      ::-webkit-scrollbar { width: 8px; background: #23243b; border-radius: 6px;}
-      ::-webkit-scrollbar-thumb { background: #21d19fbb; border-radius: 7px;}
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>📝 Milano Booking Log</h1>
-      <table>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Status</th>
-          <th>IP</th>
-          <th>Page</th>
-          <th>User Agent</th>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Milano Bookings Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:900,700|Cairo:wght@900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #1e263b 10%, #213877 45%, #19e9e3 100%);
+      font-family: 'Montserrat', 'Cairo', 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      letter-spacing: 0.8px;
+      overflow-x: hidden;
+    }
+    .dashboard-card {
+      margin-top: 40px;
+      width: 98vw;
+      max-width: 1100px;
+      background: rgba(36, 42, 74, 0.89);
+      border-radius: 36px;
+      box-shadow: 0 14px 60px 0 #23bbf066, 0 2px 24px #1fd1f977, 0 0px 6px 2px #21d19f77;
+      padding: 55px 20px 32px 20px;
+      animation: fadeInDash 1.1s cubic-bezier(.72,1.3,.58,1) 1;
+      backdrop-filter: blur(7px);
+      border: 2.7px solid #1fd1f955;
+    }
+    @keyframes fadeInDash {
+      from { opacity: 0; transform: scale(0.93) translateY(90px);}
+      to   { opacity: 1; transform: scale(1) translateY(0);}
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.6rem;
+      font-weight: 900;
+      font-family: 'Montserrat', 'Cairo', sans-serif;
+      letter-spacing: 2.8px;
+      margin-bottom: 42px;
+      background: linear-gradient(90deg,#1fd1f9 10%,#21d19f 90%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 8px 26px #1fd1f977, 0 1px 12px #fff6;
+      filter: brightness(1.1) drop-shadow(0 2px 9px #21d1f9cc);
+      user-select: none;
+    }
+    .glow-divider {
+      margin: 0 auto 30px auto;
+      height: 5px;
+      width: 60px;
+      background: linear-gradient(90deg, #21d1f9, #21d19f 60%, #ff6c6c 100%);
+      border-radius: 6px;
+      box-shadow: 0 2px 18px #21d1f9cc, 0 1px 7px #ff6c6c99;
+      animation: shineLine 3s linear infinite alternate;
+    }
+    @keyframes shineLine {
+      from { filter: brightness(1) blur(0px);}
+      to   { filter: brightness(1.2) blur(1.7px);}
+    }
+    table {
+      width: 100%;
+      margin: 0 auto 0 auto;
+      background: rgba(22,32,56,0.95);
+      box-shadow: 0 8px 32px #1fd1f911, 0 0px 3px #23e6fa22;
+      border-radius: 24px;
+      overflow: hidden;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 1.09em;
+      animation: fadeTable 1.2s;
+    }
+    @keyframes fadeTable { from {opacity:0;transform:scale(.99);} to {opacity:1;transform:scale(1);}}
+    th, td {
+      padding: 21px 9px;
+      text-align: center;
+      border: none;
+    }
+    th {
+      background: linear-gradient(90deg, #25324b 55%, #1fd1f944 100%);
+      color: #1fd1f9;
+      font-family: 'Montserrat', 'Cairo', sans-serif;
+      font-weight: 900;
+      font-size: 1.14em;
+      letter-spacing: 1.2px;
+      border-bottom: 3px solid #1fd1f955;
+      text-shadow: 0 2px 9px #1fd1f988;
+      user-select: none;
+    }
+    tr.data-row {
+      color: #fff;
+      font-weight: 900;
+      font-family: 'Cairo', 'Montserrat', sans-serif;
+      text-shadow: 0 2px 15px #21d1f9cc, 0 1px 8px #fff2;
+      background: linear-gradient(90deg, #23243b 70%, #1fd1f9 130%);
+      border-radius: 12px;
+      transition: background .18s, box-shadow .18s;
+    }
+    tr.data-row:hover {
+      background: linear-gradient(90deg, #21d1f9 2%, #21d19f 98%);
+      color: #fff;
+      box-shadow: 0 4px 28px #1fd1f977, 0 4px 14px #fff3;
+      filter: brightness(1.17);
+    }
+    .status-cell {
+      border-radius: 13px;
+      min-width: 76px;
+      display: inline-block;
+      padding: 13px 19px;
+      font-size: 1.16em;
+      box-shadow: 0 3px 16px #181a2177, 0 1px 7px #21d1f977;
+      font-weight: 900;
+      letter-spacing: 1.18px;
+      background: linear-gradient(90deg, #1fd1f9, #21d19f 70%);
+      color: #fff;
+      border: 2.5px solid #21d1f966;
+      filter: brightness(1.16) drop-shadow(0 1px 7px #1fd1f977);
+      transition: filter .18s, box-shadow .16s;
+    }
+    .delete-btn {
+      background: linear-gradient(90deg, #ff5858 25%, #21d19f 100%);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      padding: 23px 90px;
+      font-size: 1.27rem;
+      margin: 54px auto 0 auto;
+      cursor: pointer;
+      font-weight: 900;
+      letter-spacing: 1.6px;
+      box-shadow: 0 12px 42px #e74c3c38, 0 2px 24px #21d19f33;
+      transition: background 0.21s, box-shadow 0.19s, transform .19s;
+      display: block;
+      outline: none;
+      border-bottom: 3.5px solid #21d19f;
+      animation: btnin 1.3s;
+    }
+    @keyframes btnin { from {opacity:0;transform:scale(.98);} to {opacity:1;transform:scale(1);}}
+    .delete-btn:hover {
+      background: linear-gradient(90deg, #21d19f 5%, #ff5858 100%);
+      box-shadow: 0 16px 32px #1fd1f933, 0 6px 17px #ff585899;
+      transform: scale(1.04) translateY(-3px);
+      letter-spacing: 2px;
+    }
+    @media (max-width: 850px) {
+      .dashboard-card { padding: 14px 2vw 24px 2vw; }
+      th, td { font-size: 0.95em; padding: 12px 2px;}
+    }
+    @media (max-width: 600px) {
+      table, th, td { font-size: 0.82em; }
+      .dashboard-card { max-width:100vw;}
+      th { font-size: 1.04em; }
+      .delete-btn { padding: 16px 10vw;}
+    }
+    ::selection { background: #1fd1f966;}
+    ::-webkit-scrollbar { width: 8px; background: #25324b; border-radius: 8px;}
+    ::-webkit-scrollbar-thumb { background: #21d1f9bb; border-radius: 8px;}
+  </style>
+</head>
+<body>
+  <div class="dashboard-card">
+    <h1>📝 Milano Booking Log</h1>
+    <div class="glow-divider"></div>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>IP</th>
+        <th>Page</th>
+        <th>User Agent</th>
+      </tr>
+      <!-- هنا صفوف الطلبات -->
+      ${logs.map(log => `
+        <tr class="data-row">
+          <td><b>${log.day || ''}</b></td>
+          <td style="font-family:monospace; font-size:1.15em;">${log.time || ''}</td>
+          <td>
+            <span class="status-cell">${log.status ? log.status : '-'}</span>
+          </td>
+          <td>${log.ip || ''}</td>
+          <td style="font-size:0.95em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+          <td style="font-size:0.88em;word-break:break-all">${log.userAgent || ''}</td>
         </tr>
-        ${logs.map(log => `
-          <tr class="data-row">
-            <td>${log.day || ''}</td>
-            <td>${log.time || ''}</td>
-            <td><span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span></td>
-            <td>${log.ip || ''}</td>
-            <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-            <td style="font-size:0.85em;word-break:break-all">${log.userAgent || ''}</td>
-          </tr>
-        `).join('')}
-      </table>
-      <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
-      <script>
-        function deleteAllLogs(e) {
-          e.preventDefault();
-          fetch('/delete-all', { method: 'POST' })
-            .then(res => res.json())
-            .then(json => {
-              if (json.status === 'all_deleted') {
-                location.reload();
-              }
-            });
-        }
-      </script>
-    </div>
-  </body>
-  </html>
+      `).join('')}
+    </table>
+    <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+    <script>
+      function deleteAllLogs(e) {
+        e.preventDefault();
+        fetch('/delete-all', { method: 'POST' })
+          .then(res => res.json())
+          .then(json => {
+            if (json.status === 'all_deleted') location.reload();
+          });
+      }
+    </script>
+  </div>
+</body>
+</html>
   `);
 });
 
