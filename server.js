@@ -5,6 +5,9 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
+// ❗️تخزين آخر وقت تسجيل لكل IP (في الذاكرة)
+const last200ByIP = {};
+
 // CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -78,16 +81,23 @@ function requireLogin(req, res, next) {
   res.send(loginPage());
 }
 
-// يسجل فقط الطلبات التي status=200
+// يسجل فقط أول طلب 200 من نفس الـIP في كل 5 دقائق
 app.post('/log', (req, res) => {
   if (req.body.status == 200) {
-    const now = new Date();
-    const time = now.toISOString();
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || "";
-    const extra = JSON.stringify(req.body || {});
-    const logLine = `${time},${ip},${extra}\n`;
-    fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
-    res.json({ status: "ok", logged: now });
+    const now = Date.now();
+    const ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || "").split(',')[0].trim();
+
+    // تحقق هل مرّت 5 دقائق؟
+    if (!last200ByIP[ip] || (now - last200ByIP[ip]) > 5 * 60 * 1000) {
+      last200ByIP[ip] = now;
+      const isoNow = new Date(now).toISOString();
+      const extra = JSON.stringify(req.body || {});
+      const logLine = `${isoNow},${ip},${extra}\n`;
+      fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
+      res.json({ status: "ok", logged: isoNow });
+    } else {
+      res.json({ status: "skipped", reason: "last was <5min ago" });
+    }
   } else {
     res.json({ status: "ignored" });
   }
@@ -100,7 +110,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// صفحة الجدول العصرية
+// صفحة الجدول
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
