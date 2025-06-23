@@ -5,14 +5,12 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// ❗️تخزين آخر وقت تسجيل لكل IP (في الذاكرة)
-const last200ByIP = {};
-
-// CORS
+// تفعيل CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
 app.use(express.json());
@@ -21,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 // إعدادات الجلسة
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
+// بيانات تسجيل الدخول
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
@@ -35,22 +34,147 @@ function loginPage(error = "") {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body { min-height: 100vh; background: linear-gradient(125deg, #23243b 0%, #2376ae 100%); font-family: 'Cairo', 'Segoe UI', Arial, sans-serif; display: flex; align-items: center; justify-content: center; margin: 0; overflow: hidden; }
-    .glass-card { background: rgba(29,38,73,0.98); border-radius: 22px; box-shadow: 0 10px 40px 0 #00357266, 0 1.5px 14px 0 #2596be44, 0 0px 2px 1px #1fd1f977; padding: 48px 38px 36px 38px; min-width: 340px; max-width: 96vw; display: flex; flex-direction: column; align-items: center; position: relative; animation: cardIn 1s cubic-bezier(.72,1.3,.58,1) 1;}
-    @keyframes cardIn { from { transform: scale(.88) translateY(55px); opacity: 0; } to   { transform: scale(1)   translateY(0);    opacity: 1; }}
-    .logo { font-size: 2.44rem; font-weight: 900; letter-spacing: 2.1px; background: linear-gradient(90deg,#1fd1f9 5%, #21d19f 80%); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 18px; text-shadow: 0 3px 18px #23b5e68c, 0 1px 5px #26d7c444; transition: letter-spacing .18s; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(125deg, #23243b 0%, #2376ae 100%);
+      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      overflow: hidden;
+    }
+    .glass-card {
+      background: rgba(29,38,73,0.98);
+      border-radius: 22px;
+      box-shadow: 0 10px 40px 0 #00357266, 0 1.5px 14px 0 #2596be44, 0 0px 2px 1px #1fd1f977;
+      padding: 48px 38px 36px 38px;
+      min-width: 340px;
+      max-width: 96vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: cardIn 1s cubic-bezier(.72,1.3,.58,1) 1;
+    }
+    @keyframes cardIn {
+      from { transform: scale(.88) translateY(55px); opacity: 0; }
+      to   { transform: scale(1)   translateY(0);    opacity: 1; }
+    }
+    .logo {
+      font-size: 2.44rem;
+      font-weight: 900;
+      letter-spacing: 2.1px;
+      background: linear-gradient(90deg,#1fd1f9 5%, #21d19f 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 18px;
+      text-shadow: 0 3px 18px #23b5e68c, 0 1px 5px #26d7c444;
+      transition: letter-spacing .18s;
+    }
     .glass-card:hover .logo { letter-spacing: 2.8px; }
-    h2 { color: #21d19f; margin: 7px 0 29px 0; font-size: 1.29rem; font-weight: 900; letter-spacing: 1.15px; text-align: center; text-shadow: 0 1px 11px #1fd1f988;}
-    .login-form { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-bottom: 6px; }
-    .input-box { position: relative; width: 100%; margin-bottom: 0px; display: flex; align-items: center; }
-    .input-box input { flex: 1; padding: 14px 16px 14px 42px; font-size: 1.09rem; background: rgba(30, 34, 55, 0.94); border: 2.1px solid #21d19f55; color: #e7eef7; border-radius: 13px; outline: none; font-family: inherit; font-weight: 700; box-shadow: 0 3px 17px #21d19f18, 0 1px 2px #0001; transition: border 0.21s, background 0.24s, box-shadow .28s; margin-bottom: 8px; box-sizing: border-box;}
-    .input-box input:focus { border-color: #1fd1f9; background: rgba(32, 46, 89, 0.97); box-shadow: 0 4px 19px #1fd1f933;}
-    .input-box .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #1fd1f9; font-size: 1.18em; opacity: 0.82; pointer-events: none; transition: color 0.19s; }
-    .input-box input:focus ~ .icon { color: #21d19f; opacity: 1; }
-    .login-btn { width: 100%; background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%); color: #fff; font-size: 1.18rem; padding: 14px 0; border: none; border-radius: 14px; font-weight: 900; letter-spacing: 1.32px; cursor: pointer; margin-top: 12px; box-shadow: 0 6px 18px #1fd1f933, 0 2px 7px #21d19f22; transition: background 0.22s, box-shadow 0.18s, transform .18s; transform: translateY(0); outline: none; border-bottom: 2px solid #1fd1f9;}
-    .login-btn:hover, .login-btn:focus { background: linear-gradient(90deg, #21d19f 5%, #1fd1f9 100%); box-shadow: 0 8px 22px #2fc7fc3a, 0 5px 10px #21d19f33; transform: translateY(-4px) scale(1.025); border-bottom: 3.5px solid #21d19f; letter-spacing: 2.5px;}
-    .error-msg { color: #e74c3c; font-weight: 900; font-size: 1.09em; text-align: center; margin-bottom: 11px; margin-top: -8px; letter-spacing: 1.13px; background: #fff5f5; padding: 7px 0 3px 0; border-radius: 7px; box-shadow: 0 2px 8px #e74c3c21;}
-    @media (max-width: 600px) { .glass-card { padding: 22px 3vw; min-width: 90vw;} .logo { font-size: 1.34rem;} }
+    h2 {
+      color: #21d19f;
+      margin: 7px 0 29px 0;
+      font-size: 1.29rem;
+      font-weight: 900;
+      letter-spacing: 1.15px;
+      text-align: center;
+      text-shadow: 0 1px 11px #1fd1f988;
+    }
+    .login-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 6px;
+    }
+    .input-box {
+      position: relative;
+      width: 100%;
+      margin-bottom: 0px;
+      display: flex;
+      align-items: center;
+    }
+    .input-box input {
+      flex: 1;
+      padding: 14px 16px 14px 42px;
+      font-size: 1.09rem;
+      background: rgba(30, 34, 55, 0.94);
+      border: 2.1px solid #21d19f55;
+      color: #e7eef7;
+      border-radius: 13px;
+      outline: none;
+      font-family: inherit;
+      font-weight: 700;
+      box-shadow: 0 3px 17px #21d19f18, 0 1px 2px #0001;
+      transition: border 0.21s, background 0.24s, box-shadow .28s;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    .input-box input:focus {
+      border-color: #1fd1f9;
+      background: rgba(32, 46, 89, 0.97);
+      box-shadow: 0 4px 19px #1fd1f933;
+    }
+    .input-box .icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #1fd1f9;
+      font-size: 1.18em;
+      opacity: 0.82;
+      pointer-events: none;
+      transition: color 0.19s;
+    }
+    .input-box input:focus ~ .icon {
+      color: #21d19f;
+      opacity: 1;
+    }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 100%);
+      color: #fff;
+      font-size: 1.18rem;
+      padding: 14px 0;
+      border: none;
+      border-radius: 14px;
+      font-weight: 900;
+      letter-spacing: 1.32px;
+      cursor: pointer;
+      margin-top: 12px;
+      box-shadow: 0 6px 18px #1fd1f933, 0 2px 7px #21d19f22;
+      transition: background 0.22s, box-shadow 0.18s, transform .18s;
+      transform: translateY(0);
+      outline: none;
+      border-bottom: 2px solid #1fd1f9;
+    }
+    .login-btn:hover, .login-btn:focus {
+      background: linear-gradient(90deg, #21d19f 5%, #1fd1f9 100%);
+      box-shadow: 0 8px 22px #2fc7fc3a, 0 5px 10px #21d19f33;
+      transform: translateY(-4px) scale(1.025);
+      border-bottom: 3.5px solid #21d19f;
+      letter-spacing: 2.5px;
+    }
+    .error-msg {
+      color: #e74c3c;
+      font-weight: 900;
+      font-size: 1.09em;
+      text-align: center;
+      margin-bottom: 11px;
+      margin-top: -8px;
+      letter-spacing: 1.13px;
+      background: #fff5f5;
+      padding: 7px 0 3px 0;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px #e74c3c21;
+    }
+    @media (max-width: 600px) {
+      .glass-card { padding: 22px 3vw; min-width: 90vw;}
+      .logo { font-size: 1.34rem;}
+    }
   </style>
 </head>
 <body>
@@ -75,41 +199,46 @@ function loginPage(error = "") {
   `;
 }
 
-// حماية الدخول
+// حماية صفحة الجدول فقط
 function requireLogin(req, res, next) {
   if (req.session && req.session.loggedIn) return next();
   res.send(loginPage());
 }
 
-// يسجل فقط أول طلب 200 من نفس الـIP في كل 5 دقائق
+// ======== LOG ROUTE - مفتوح للكل ========
 app.post('/log', (req, res) => {
-  if (req.body.status == 200) {
-    const now = Date.now();
-    const ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || "").split(',')[0].trim();
-
-    // تحقق هل مرّت 5 دقائق؟
-    if (!last200ByIP[ip] || (now - last200ByIP[ip]) > 5 * 60 * 1000) {
-      last200ByIP[ip] = now;
-      const isoNow = new Date(now).toISOString();
-      const extra = JSON.stringify(req.body || {});
-      const logLine = `${isoNow},${ip},${extra}\n`;
-      fs.appendFileSync(path.join(__dirname, 'applicant_log.csv'), logLine);
-      res.json({ status: "ok", logged: isoNow });
-    } else {
-      res.json({ status: "skipped", reason: "last was <5min ago" });
-    }
-  } else {
-    res.json({ status: "ignored" });
-  }
-});
-
-// زر حذف الكل
-app.post('/delete-all', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
-  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
-  res.json({ status: 'all_deleted' });
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const body = req.body || {};
+  // تحقق ألا يسجل أكثر من طلب 200 لنفس الآيبي خلال 5 دقائق
+  if (body.status == 200) {
+    let allowLog = true;
+    if (fs.existsSync(pathLog)) {
+      const logs = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean);
+      for (let i = logs.length - 1; i >= 0; i--) {
+        const line = logs[i];
+        const [date, prevIp, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
+        let info = {};
+        try { info = JSON.parse(data); } catch {}
+        if (prevIp === ip && info.status == 200) {
+          let prevTime = new Date(info.isoTime || date).getTime();
+          let nowTime = new Date(body.isoTime).getTime();
+          if (!isNaN(prevTime) && nowTime - prevTime < 5 * 60 * 1000) {
+            allowLog = false;
+            break;
+          }
+        }
+      }
+    }
+    if (allowLog) {
+      const line = `${new Date().toISOString()},${ip},${JSON.stringify(body)}\n`;
+      fs.appendFileSync(pathLog, line);
+    }
+  }
+  res.json({ ok: true });
 });
 
+// الصفحة العصرية العجيبة!
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -218,12 +347,19 @@ app.get('/', requireLogin, (req, res) => {
         position: relative;
       }
       tr { transition: background 0.22s;}
-      tr:nth-child(even) { background: #23243b77;}
-      tr:hover {
-        background: linear-gradient(90deg, #1fd1f925 20%, #2fc7fc15 100%);
-        box-shadow: 0 2px 14px #1fd1f933;
-        cursor: pointer;
+      tr.data-row {
+        color: #fff;
+        font-weight: 900;
+        text-shadow: 0 2px 12px #21d1f9cc, 0 1px 4px #fff4;
+        background: linear-gradient(90deg, #25324b 80%, #27e4e7 150%);
+        transition: background .2s, box-shadow .21s;
       }
+      tr.data-row:hover {
+        background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 80%);
+        color: #fff;
+        box-shadow: 0 2px 20px #1fd1f933, 0 4px 20px #fff3;
+      }
+      tr:nth-child(even) { background: #23243b77; }
       tr:last-child { border-bottom: none; }
       .status-cell {
         border-radius: 14px;
@@ -253,20 +389,28 @@ app.get('/', requireLogin, (req, res) => {
       }
       .delete-btn:hover {
         background: linear-gradient(90deg, #21d19f 8%, #ff5858 100%);
-        box-shadow: 0 16px 32px #e74c3c54, 0 6px 20px #21d19f44;
-        transform: scale(1.065) translateY(-6px);
-        letter-spacing: 2.1px;
+        box-shadow: 0 16px 32px #e74c3c54, 0 9px 22px #21d19f29;
+        transform: scale(1.057) translateY(-5px);
+        letter-spacing: 3.1px;
       }
-      @media (max-width: 1020px){.container{padding:12px 2vw;}th,td{font-size:0.96em;padding:11px 2px;}}
-      @media (max-width:700px){table,th,td{font-size:0.82em;}.container{max-width:99vw;}th{font-size:1em;}}
-      ::selection {background: #1fd1f966;}
-      ::-webkit-scrollbar {width:8px;background:#23243b;border-radius:6px;}
-      ::-webkit-scrollbar-thumb {background:#21d19fbb;border-radius:8px;}
+      @media (max-width: 900px) {
+        .container { padding: 7px 2px; }
+        th, td { font-size: 0.97em; padding: 12px 3px; }
+        .delete-btn { padding: 12px 0; font-size: 1.06rem; }
+      }
+      @media (max-width: 600px) {
+        table, th, td { font-size: 0.82em; }
+        .container { max-width: 100vw; }
+        th { font-size: 1.06em; }
+      }
+      ::selection { background: #1fd1f966; }
+      ::-webkit-scrollbar { width: 8px; background: #23243b; border-radius: 6px;}
+      ::-webkit-scrollbar-thumb { background: #21d19fbb; border-radius: 7px;}
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>📝 MILANO Booking Log</h1>
+      <h1>📝 Milano Booking Log</h1>
       <table>
         <tr>
           <th>Date</th>
@@ -277,39 +421,43 @@ app.get('/', requireLogin, (req, res) => {
           <th>User Agent</th>
         </tr>
         ${logs.map(log => `
-          <tr>
-            <td><b>${log.day || ''}</b></td>
-            <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
-            <td>
-              <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
-            </td>
+          <tr class="data-row">
+            <td>${log.day || ''}</td>
+            <td>${log.time || ''}</td>
+            <td><span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span></td>
             <td>${log.ip || ''}</td>
-            <td style="font-size:0.98em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-            <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
+            <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+            <td style="font-size:0.85em;word-break:break-all">${log.userAgent || ''}</td>
           </tr>
         `).join('')}
       </table>
       <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+      <script>
+        function deleteAllLogs(e) {
+          e.preventDefault();
+          fetch('/delete-all', { method: 'POST' })
+            .then(res => res.json())
+            .then(json => {
+              if (json.status === 'all_deleted') {
+                location.reload();
+              }
+            });
+        }
+      </script>
     </div>
-    <script>
-      function deleteAllLogs(e) {
-        e.preventDefault();
-        if (!confirm('Are you sure you want to delete all records?')) return;
-        fetch('/delete-all', { method: 'POST' })
-          .then(res => res.json())
-          .then(json => {
-            if (json.status === 'all_deleted') {
-              location.reload();
-            }
-          });
-      }
-    </script>
   </body>
   </html>
   `);
 });
 
-// POST تسجيل الدخول
+// صفحة الحذف
+app.post('/delete-all', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
+  res.json({ status: 'all_deleted' });
+});
+
+// صفحة POST تسجيل الدخول
 app.post('/', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
@@ -323,3 +471,4 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+
