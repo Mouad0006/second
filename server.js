@@ -272,168 +272,199 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Milano Bookings Dashboard</title>
+  <title>🚀 Milano NeoLog Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:900,700|Cairo:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Orbitron:900,700|Cairo:wght@900&display=swap" rel="stylesheet">
   <style>
     body {
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #1e263b 10%, #213877 45%, #19e9e3 100%);
-      font-family: 'Montserrat', 'Cairo', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #101320 0%, #142440 65%, #21d1f9 120%);
+      font-family: 'Orbitron', 'Cairo', 'Segoe UI', Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      letter-spacing: 0.8px;
+      letter-spacing: 1px;
       overflow-x: hidden;
+      box-shadow: 0 0 200px #1fd1f988 inset;
     }
-    .dashboard-card {
-      margin-top: 40px;
+    .dashboard-glass {
+      margin-top: 52px;
       width: 98vw;
-      max-width: 1100px;
-      background: rgba(36, 42, 74, 0.89);
-      border-radius: 36px;
-      box-shadow: 0 14px 60px 0 #23bbf066, 0 2px 24px #1fd1f977, 0 0px 6px 2px #21d19f77;
-      padding: 55px 20px 32px 20px;
-      animation: fadeInDash 1.1s cubic-bezier(.72,1.3,.58,1) 1;
-      backdrop-filter: blur(7px);
-      border: 2.7px solid #1fd1f955;
+      max-width: 1150px;
+      background: rgba(36, 46, 90, 0.92);
+      border-radius: 38px;
+      box-shadow: 0 0px 88px 0 #00fff088, 0 2px 24px #1fd1f9cc, 0 0px 7px 2px #21d19f88;
+      padding: 55px 20px 42px 20px;
+      animation: fadeInNeo 1.1s cubic-bezier(.75,1.5,.68,1) 1;
+      backdrop-filter: blur(10px);
+      border: 3.2px solid #27e1f9;
+      position: relative;
+      overflow: visible;
     }
-    @keyframes fadeInDash {
-      from { opacity: 0; transform: scale(0.93) translateY(90px);}
+    @keyframes fadeInNeo {
+      from { opacity: 0; transform: scale(0.89) translateY(90px);}
       to   { opacity: 1; transform: scale(1) translateY(0);}
     }
-    h1 {
+    .dashboard-glass:before {
+      content: '';
+      position: absolute;
+      left: 60px; right: 60px; top: 0; height: 10px;
+      border-radius: 60px;
+      background: linear-gradient(90deg, #1fd1f9, #21d19f 40%, #fff 100%);
+      filter: blur(8px) brightness(1.2) opacity(0.34);
+      z-index: 2;
+      animation: shineNeon 3.7s linear infinite alternate;
+    }
+    @keyframes shineNeon {
+      0%   { filter: blur(8px) brightness(1.2) opacity(0.27);}
+      50%  { filter: blur(13px) brightness(2) opacity(0.44);}
+      100% { filter: blur(8px) brightness(1.2) opacity(0.27);}
+    }
+    .title-future {
       text-align: center;
-      font-size: 2.6rem;
+      font-size: 2.95rem;
       font-weight: 900;
-      font-family: 'Montserrat', 'Cairo', sans-serif;
-      letter-spacing: 2.8px;
-      margin-bottom: 42px;
-      background: linear-gradient(90deg,#1fd1f9 10%,#21d19f 90%);
+      font-family: 'Orbitron', 'Cairo', sans-serif;
+      letter-spacing: 3.7px;
+      margin-bottom: 44px;
+      margin-top: 0;
+      background: linear-gradient(90deg,#1fd1f9 0%,#21d19f 85%,#fff 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 8px 26px #1fd1f977, 0 1px 12px #fff6;
-      filter: brightness(1.1) drop-shadow(0 2px 9px #21d1f9cc);
+      text-shadow: 0 16px 46px #23e9fb77, 0 1px 14px #fff7;
+      filter: brightness(1.24) drop-shadow(0 5px 19px #21d1f9cc);
       user-select: none;
+      letter-spacing: 3.3px;
+      transition: letter-spacing 0.25s;
+      animation: titleFloat 2.2s ease-in-out infinite alternate;
+    }
+    @keyframes titleFloat {
+      0%   { letter-spacing: 2.7px; transform: translateY(0);}
+      100% { letter-spacing: 8.7px; transform: translateY(-8px);}
     }
     .glow-divider {
-      margin: 0 auto 30px auto;
-      height: 5px;
-      width: 60px;
-      background: linear-gradient(90deg, #21d1f9, #21d19f 60%, #ff6c6c 100%);
-      border-radius: 6px;
-      box-shadow: 0 2px 18px #21d1f9cc, 0 1px 7px #ff6c6c99;
-      animation: shineLine 3s linear infinite alternate;
+      margin: 0 auto 38px auto;
+      height: 6px;
+      width: 74px;
+      background: linear-gradient(90deg, #1fd1f9, #fff 60%, #ff6c6c 100%);
+      border-radius: 14px;
+      box-shadow: 0 3px 22px #1fd1f9bb, 0 1px 7px #ff6c6c88;
+      animation: shineLine 4.5s linear infinite alternate;
     }
     @keyframes shineLine {
       from { filter: brightness(1) blur(0px);}
-      to   { filter: brightness(1.2) blur(1.7px);}
+      to   { filter: brightness(1.5) blur(3.1px);}
     }
     table {
       width: 100%;
       margin: 0 auto 0 auto;
-      background: rgba(22,32,56,0.95);
-      box-shadow: 0 8px 32px #1fd1f911, 0 0px 3px #23e6fa22;
-      border-radius: 24px;
+      background: rgba(23,35,57,0.93);
+      box-shadow: 0 9px 38px #1fd1f911, 0 0px 4px #23e6fa44;
+      border-radius: 26px;
       overflow: hidden;
       border-collapse: separate;
       border-spacing: 0;
-      font-size: 1.09em;
-      animation: fadeTable 1.2s;
+      font-size: 1.13em;
+      animation: fadeTable 1.5s;
+      border: 2.5px solid #1fd1f922;
     }
-    @keyframes fadeTable { from {opacity:0;transform:scale(.99);} to {opacity:1;transform:scale(1);}}
+    @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
     th, td {
-      padding: 21px 9px;
+      padding: 24px 13px;
       text-align: center;
       border: none;
     }
     th {
-      background: linear-gradient(90deg, #25324b 55%, #1fd1f944 100%);
-      color: #1fd1f9;
-      font-family: 'Montserrat', 'Cairo', sans-serif;
+      background: linear-gradient(90deg, #25324b 70%, #21d1f955 100%);
+      color: #30fff8;
+      font-family: 'Orbitron', 'Montserrat', 'Cairo', sans-serif;
       font-weight: 900;
-      font-size: 1.14em;
-      letter-spacing: 1.2px;
-      border-bottom: 3px solid #1fd1f955;
-      text-shadow: 0 2px 9px #1fd1f988;
+      font-size: 1.18em;
+      letter-spacing: 1.3px;
+      border-bottom: 3.5px solid #27e1f9;
       user-select: none;
+      text-shadow: 0 2px 13px #1fd1f9bb;
+      filter: brightness(1.09);
     }
     tr.data-row {
       color: #fff;
       font-weight: 900;
       font-family: 'Cairo', 'Montserrat', sans-serif;
-      text-shadow: 0 2px 15px #21d1f9cc, 0 1px 8px #fff2;
-      background: linear-gradient(90deg, #23243b 70%, #1fd1f9 130%);
-      border-radius: 12px;
+      text-shadow: 0 2px 18px #21d1f9aa, 0 1px 11px #fff8;
+      background: linear-gradient(92deg, #101320 63%, #1fd1f9 130%);
+      border-radius: 13px;
       transition: background .18s, box-shadow .18s;
+      filter: brightness(1.22);
     }
     tr.data-row:hover {
-      background: linear-gradient(90deg, #21d1f9 2%, #21d19f 98%);
+      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 98%);
       color: #fff;
-      box-shadow: 0 4px 28px #1fd1f977, 0 4px 14px #fff3;
-      filter: brightness(1.17);
+      box-shadow: 0 6px 22px #1fd1f977, 0 5px 13px #fff3;
+      filter: brightness(1.33);
+      border-radius: 16px;
     }
     .status-cell {
-      border-radius: 13px;
-      min-width: 76px;
+      border-radius: 15px;
+      min-width: 82px;
       display: inline-block;
-      padding: 13px 19px;
-      font-size: 1.16em;
-      box-shadow: 0 3px 16px #181a2177, 0 1px 7px #21d1f977;
+      padding: 13px 25px;
+      font-size: 1.22em;
+      box-shadow: 0 3px 19px #21d1f999, 0 1px 9px #fff7;
       font-weight: 900;
-      letter-spacing: 1.18px;
-      background: linear-gradient(90deg, #1fd1f9, #21d19f 70%);
+      letter-spacing: 1.21px;
+      background: linear-gradient(90deg, #1fd1f9, #21d19f 70%, #fff 120%);
       color: #fff;
-      border: 2.5px solid #21d1f966;
-      filter: brightness(1.16) drop-shadow(0 1px 7px #1fd1f977);
-      transition: filter .18s, box-shadow .16s;
+      border: 3px solid #1fd1f9cc;
+      filter: brightness(1.24) drop-shadow(0 1px 9px #1fd1f977);
+      transition: filter .21s, box-shadow .18s;
+      text-shadow: 0 1px 12px #fff7;
     }
     .delete-btn {
       background: linear-gradient(90deg, #ff5858 25%, #21d19f 100%);
       color: #fff;
       border: none;
       border-radius: 22px;
-      padding: 23px 90px;
-      font-size: 1.27rem;
-      margin: 54px auto 0 auto;
+      padding: 23px 100px;
+      font-size: 1.29rem;
+      margin: 58px auto 0 auto;
       cursor: pointer;
       font-weight: 900;
-      letter-spacing: 1.6px;
-      box-shadow: 0 12px 42px #e74c3c38, 0 2px 24px #21d19f33;
+      letter-spacing: 1.7px;
+      box-shadow: 0 16px 42px #e74c3c28, 0 2px 19px #21d19f33;
       transition: background 0.21s, box-shadow 0.19s, transform .19s;
       display: block;
       outline: none;
-      border-bottom: 3.5px solid #21d19f;
-      animation: btnin 1.3s;
+      border-bottom: 4px solid #21d19f;
+      animation: btnin 1.4s;
     }
     @keyframes btnin { from {opacity:0;transform:scale(.98);} to {opacity:1;transform:scale(1);}}
     .delete-btn:hover {
       background: linear-gradient(90deg, #21d19f 5%, #ff5858 100%);
-      box-shadow: 0 16px 32px #1fd1f933, 0 6px 17px #ff585899;
-      transform: scale(1.04) translateY(-3px);
-      letter-spacing: 2px;
+      box-shadow: 0 22px 32px #1fd1f933, 0 9px 23px #ff585899;
+      transform: scale(1.07) translateY(-4px);
+      letter-spacing: 2.5px;
     }
-    @media (max-width: 850px) {
-      .dashboard-card { padding: 14px 2vw 24px 2vw; }
+    @media (max-width: 950px) {
+      .dashboard-glass { padding: 14px 2vw 24px 2vw; }
       th, td { font-size: 0.95em; padding: 12px 2px;}
     }
     @media (max-width: 600px) {
-      table, th, td { font-size: 0.82em; }
-      .dashboard-card { max-width:100vw;}
-      th { font-size: 1.04em; }
-      .delete-btn { padding: 16px 10vw;}
+      table, th, td { font-size: 0.81em; }
+      .dashboard-glass { max-width:100vw;}
+      th { font-size: 1.05em; }
+      .delete-btn { padding: 15px 4vw;}
     }
     ::selection { background: #1fd1f966;}
-    ::-webkit-scrollbar { width: 8px; background: #25324b; border-radius: 8px;}
-    ::-webkit-scrollbar-thumb { background: #21d1f9bb; border-radius: 8px;}
+    ::-webkit-scrollbar { width: 9px; background: #233452; border-radius: 10px;}
+    ::-webkit-scrollbar-thumb { background: #1fd1f9cc; border-radius: 10px;}
   </style>
 </head>
 <body>
-  <div class="dashboard-card">
-    <h1>📝 Milano Booking Log</h1>
+  <div class="dashboard-glass">
+    <h1 class="title-future">🦾 MILANO Booking NeoLog</h1>
     <div class="glow-divider"></div>
     <table>
       <tr>
@@ -444,7 +475,6 @@ app.get('/', requireLogin, (req, res) => {
         <th>Page</th>
         <th>User Agent</th>
       </tr>
-      <!-- هنا صفوف الطلبات -->
       ${logs.map(log => `
         <tr class="data-row">
           <td><b>${log.day || ''}</b></td>
@@ -472,6 +502,8 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
+
+
   `);
 });
 
