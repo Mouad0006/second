@@ -110,7 +110,6 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// صفحة الجدول
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -129,126 +128,184 @@ app.get('/', requireLogin, (req, res) => {
         time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       }
       return { ...info, ip, day, time, status: info.status, userAgent: info.userAgent, href: info.href };
-    })
-    .filter(log => log.status == 200)
-    .reverse();
+    }).filter(log => log.status == 200).reverse();
   }
 
   function statusColor(status) {
-    if (status == 200) return 'background:#16c784;color:#fff;font-weight:bold;';
-    if (status == 302) return 'background:#facc15;color:#222;font-weight:bold;';
+    if (status == 200) return 'background:linear-gradient(90deg,#21d19f,#1fd1f9);color:#fff;font-weight:bold;box-shadow:0 2px 10px #21d19f99;';
+    if (status == 302) return 'background:linear-gradient(90deg,#fbbf24,#facc15);color:#222;font-weight:bold;';
     if (!status) return 'background:#eee;color:#888;';
-    return 'background:#dc2626;color:#fff;font-weight:bold;';
+    return 'background:linear-gradient(90deg,#e74c3c,#dc2626);color:#fff;font-weight:bold;';
   }
 
   res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <title>Applicant Access Log</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style>
-        body {
-          background: #181818;
-          color: #eee;
-          font-family: 'Segoe UI', Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-        }
-        .container {
-          max-width: 900px;
-          margin: 35px auto;
-          background: #23272e;
-          border-radius: 16px;
-          box-shadow: 0 10px 24px rgba(0,0,0,.13);
-          padding: 26px 22px 30px 22px;
-        }
-        h1 {
-          text-align: center;
-          font-size: 2rem;
-          color: #38bdf8;
-          letter-spacing: 1px;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 32px;
-          font-size: 1rem;
-          background: #23272e;
-        }
-        th, td {
-          padding: 8px 12px;
-          text-align: center;
-        }
-        th {
-          background: #0f172a;
-          color: #5eead4;
-          font-weight: bold;
-        }
-        tr {
-          border-bottom: 1px solid #374151;
-        }
-        tr:last-child { border-bottom: none; }
-        .status-cell {
-          border-radius: 10px;
-          min-width: 62px;
-          display: inline-block;
-          padding: 5px 10px;
-        }
-        .delete-btn {
-          background: #dc2626;
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          padding: 11px 36px;
-          font-size: 1.1rem;
-          margin-top: 16px;
-          cursor: pointer;
-          transition: background 0.2s;
-          font-weight: 600;
-          letter-spacing: 1px;
-        }
-        .delete-btn:hover {
-          background: #991b1b;
-        }
-        @media (max-width: 700px) {
-          .container { padding: 4px 2px; }
-          table { font-size: 0.85rem;}
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Applicant Access Log</h1>
-        <table>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>📝 Milano Booking Log</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+      body {
+        min-height: 100vh;
+        background: linear-gradient(125deg, #181928 0%, #2376ae 100%);
+        font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .container {
+        margin-top: 48px;
+        width: 96vw;
+        max-width: 1080px;
+        background: rgba(33,38,59,0.98);
+        border-radius: 32px;
+        box-shadow: 0 14px 48px 0 #00357288, 0 2px 24px #1fd1f977, 0 0px 4px 1px #21d19f33;
+        padding: 42px 20px 30px 20px;
+        animation: fadeInUp 1.05s cubic-bezier(.72,1.3,.58,1) 1;
+        backdrop-filter: blur(4.5px);
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(65px) scale(.92);}
+        to   { opacity: 1; transform: translateY(0) scale(1);}
+      }
+      h1 {
+        text-align: center;
+        font-size: 2.44rem;
+        font-weight: 900;
+        letter-spacing: 2.6px;
+        margin-bottom: 38px;
+        background: linear-gradient(90deg,#1fd1f9 15%,#21d19f 80%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 6px 24px #1fd1f966, 0 1px 12px #21d19f88;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 12px;
+        background: rgba(23,27,48,0.98);
+        box-shadow: 0 8px 28px #21d19f11;
+        border-radius: 20px;
+        overflow: hidden;
+        font-size: 1.09em;
+        animation: fadeTable 1.4s;
+        transition: box-shadow 0.28s;
+      }
+      @keyframes fadeTable {
+        from {opacity:0;transform:scale(.98);}
+        to {opacity:1;transform:scale(1);}
+      }
+      th, td {
+        padding: 18px 8px;
+        text-align: center;
+        border: none;
+      }
+      th {
+        background: linear-gradient(90deg, #222a42 55%, #21d19f22 100%);
+        color: #1fd1f9;
+        font-weight: 900;
+        font-size: 1.17em;
+        letter-spacing: 1.2px;
+        border-bottom: 2.7px solid #21d19f44;
+        user-select: none;
+        transition: background .22s;
+        position: relative;
+      }
+      tr { transition: background 0.22s;}
+      tr:nth-child(even) { background: #23243b77;}
+      tr:hover {
+        background: linear-gradient(90deg, #1fd1f925 20%, #2fc7fc15 100%);
+        box-shadow: 0 2px 14px #1fd1f933;
+        cursor: pointer;
+      }
+      tr:last-child { border-bottom: none; }
+      .status-cell {
+        border-radius: 14px;
+        min-width: 70px;
+        display: inline-block;
+        padding: 10px 17px;
+        font-size: 1.08em;
+        box-shadow: 0 2px 12px #181a2177;
+        transition: background 0.3s, color 0.3s;
+        font-weight: 900;
+        letter-spacing: 1.13px;
+      }
+      .delete-btn {
+        background: linear-gradient(90deg, #ff5858 25%, #21d19f 100%);
+        color: #fff;
+        border: none;
+        border-radius: 16px;
+        padding: 20px 70px;
+        font-size: 1.23rem;
+        margin: 44px auto 0 auto;
+        cursor: pointer;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        box-shadow: 0 10px 32px #e74c3c38, 0 2px 14px #21d19f33;
+        transition: background 0.24s, box-shadow 0.18s, transform .19s;
+        display: block;
+      }
+      .delete-btn:hover {
+        background: linear-gradient(90deg, #21d19f 8%, #ff5858 100%);
+        box-shadow: 0 16px 32px #e74c3c54, 0 6px 20px #21d19f44;
+        transform: scale(1.065) translateY(-6px);
+        letter-spacing: 2.1px;
+      }
+      @media (max-width: 1020px){.container{padding:12px 2vw;}th,td{font-size:0.96em;padding:11px 2px;}}
+      @media (max-width:700px){table,th,td{font-size:0.82em;}.container{max-width:99vw;}th{font-size:1em;}}
+      ::selection {background: #1fd1f966;}
+      ::-webkit-scrollbar {width:8px;background:#23243b;border-radius:6px;}
+      ::-webkit-scrollbar-thumb {background:#21d19fbb;border-radius:8px;}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📝 MILANO Booking Log</h1>
+      <table>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>IP</th>
+          <th>Page</th>
+          <th>User Agent</th>
+        </tr>
+        ${logs.map(log => `
           <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-            <th>IP</th>
-            <th>Page</th>
-            <th>User Agent</th>
+            <td><b>${log.day || ''}</b></td>
+            <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
+            <td>
+              <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
+            </td>
+            <td>${log.ip || ''}</td>
+            <td style="font-size:0.98em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+            <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
           </tr>
-          ${logs.map(log => `
-            <tr>
-              <td><b>${log.day || ''}</b></td>
-              <td>${log.time || ''}</td>
-              <td>
-                <span class="status-cell" style="${statusColor(log.status)}">${log.status ? log.status : '-'}</span>
-              </td>
-              <td>${log.ip || ''}</td>
-              <td style="font-size:0.93em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-              <td style="font-size:0.84em;word-break:break-all">${log.userAgent || ''}</td>
-            </tr>
-          `).join('')}
-        </table>
-        <form method="POST" action="/delete-all" onsubmit="return confirm('Delete all records?');" style="text-align:center;">
-          <button class="delete-btn" type="submit">DELETE ALL</button>
-        </form>
-      </div>
-    </body>
-    </html>
+        `).join('')}
+      </table>
+      <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+    </div>
+    <script>
+      function deleteAllLogs(e) {
+        e.preventDefault();
+        if (!confirm('Are you sure you want to delete all records?')) return;
+        fetch('/delete-all', { method: 'POST' })
+          .then(res => res.json())
+          .then(json => {
+            if (json.status === 'all_deleted') {
+              location.reload();
+            }
+          });
+      }
+    </script>
+  </body>
+  </html>
   `);
 });
 
