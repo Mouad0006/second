@@ -272,200 +272,210 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>🚀 Milano NeoLog Dashboard</title>
+  <title>🤖 MILANO Quantum Log - Year 2150</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Orbitron:900,700|Cairo:wght@900&display=swap" rel="stylesheet">
   <style>
-    body {
+    html, body {
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(135deg, #101320 0%, #142440 65%, #21d1f9 120%);
+      background: linear-gradient(125deg, #131530 0%, #20d6ff 150%);
       font-family: 'Orbitron', 'Cairo', 'Segoe UI', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      letter-spacing: 1px;
+      box-shadow: 0 0 280px #4efaff44 inset;
+      position: relative;
       overflow-x: hidden;
-      box-shadow: 0 0 200px #1fd1f988 inset;
     }
-    .dashboard-glass {
-      margin-top: 52px;
-      width: 98vw;
-      max-width: 1150px;
-      background: rgba(36, 46, 90, 0.92);
-      border-radius: 38px;
-      box-shadow: 0 0px 88px 0 #00fff088, 0 2px 24px #1fd1f9cc, 0 0px 7px 2px #21d19f88;
-      padding: 55px 20px 42px 20px;
-      animation: fadeInNeo 1.1s cubic-bezier(.75,1.5,.68,1) 1;
-      backdrop-filter: blur(10px);
-      border: 3.2px solid #27e1f9;
+    body::before {
+      /* دخان ونيون */
+      content: '';
+      position: fixed;
+      left: -40vw; top: -30vh; width: 180vw; height: 180vh;
+      background: radial-gradient(circle at 40% 40%, #3ff1fff5 0%, #08fbb030 50%, transparent 70%);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+      animation: neonSmoke 18s linear infinite alternate;
+    }
+    @keyframes neonSmoke {
+      0% { transform: scale(1) translateY(0);}
+      100%{ transform: scale(1.2) translateY(60px);}
+    }
+    .quantum-glass {
+      margin: 62px auto 0 auto;
+      width: 99vw;
+      max-width: 1290px;
+      background: linear-gradient(120deg,rgba(26,32,58,.94),rgba(50,72,110,0.95) 89%);
+      border-radius: 49px;
+      box-shadow: 0 0 130px #00e0ffc0, 0 3px 40px #22fcf8bb, 0 0px 22px 6px #ff18ff55;
+      padding: 60px 3vw 60px 3vw;
       position: relative;
       overflow: visible;
+      border: 3.8px solid #20d6ff;
+      backdrop-filter: blur(15px) brightness(1.09);
+      animation: quantumAppear 1.7s cubic-bezier(.79,1.6,.72,1) 1;
+      z-index: 1;
     }
-    @keyframes fadeInNeo {
-      from { opacity: 0; transform: scale(0.89) translateY(90px);}
-      to   { opacity: 1; transform: scale(1) translateY(0);}
+    @keyframes quantumAppear {
+      0% { opacity: 0; transform: scale(0.85) translateY(160px);}
+      100%{ opacity: 1; transform: scale(1) translateY(0);}
     }
-    .dashboard-glass:before {
+    .quantum-glass:after {
       content: '';
-      position: absolute;
-      left: 60px; right: 60px; top: 0; height: 10px;
-      border-radius: 60px;
-      background: linear-gradient(90deg, #1fd1f9, #21d19f 40%, #fff 100%);
-      filter: blur(8px) brightness(1.2) opacity(0.34);
+      position: absolute; top:0; left:80px; right:80px; height:12px;
+      background: linear-gradient(90deg, #20d6ff 0%, #fff 30%, #ff50fa 100%);
+      filter: blur(12px) brightness(1.4) opacity(0.36);
+      border-radius: 50px;
       z-index: 2;
-      animation: shineNeon 3.7s linear infinite alternate;
+      animation: glassglow 3s linear infinite alternate;
     }
-    @keyframes shineNeon {
-      0%   { filter: blur(8px) brightness(1.2) opacity(0.27);}
-      50%  { filter: blur(13px) brightness(2) opacity(0.44);}
-      100% { filter: blur(8px) brightness(1.2) opacity(0.27);}
+    @keyframes glassglow {
+      0% { filter: blur(12px) brightness(1.1) opacity(0.24);}
+      100%{ filter: blur(15px) brightness(2.2) opacity(0.45);}
     }
-    .title-future {
+    .log-title {
       text-align: center;
-      font-size: 2.95rem;
-      font-weight: 900;
+      font-size: 3.5rem;
       font-family: 'Orbitron', 'Cairo', sans-serif;
-      letter-spacing: 3.7px;
-      margin-bottom: 44px;
-      margin-top: 0;
-      background: linear-gradient(90deg,#1fd1f9 0%,#21d19f 85%,#fff 100%);
+      letter-spacing: 8px;
+      font-weight: 900;
+      margin-bottom: 45px;
+      background: linear-gradient(90deg,#fff 0%,#20d6ff 50%,#ff16ff 100%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 16px 46px #23e9fb77, 0 1px 14px #fff7;
-      filter: brightness(1.24) drop-shadow(0 5px 19px #21d1f9cc);
+      text-shadow: 0 22px 80px #fff7, 0 1px 20px #20d6ff77;
       user-select: none;
-      letter-spacing: 3.3px;
-      transition: letter-spacing 0.25s;
-      animation: titleFloat 2.2s ease-in-out infinite alternate;
+      filter: brightness(1.18) drop-shadow(0 10px 24px #20d6ff);
+      animation: titlePulse 3.3s ease-in-out infinite alternate;
     }
-    @keyframes titleFloat {
-      0%   { letter-spacing: 2.7px; transform: translateY(0);}
-      100% { letter-spacing: 8.7px; transform: translateY(-8px);}
+    @keyframes titlePulse {
+      0% { letter-spacing: 5px; filter: brightness(1.09);}
+      100%{ letter-spacing: 15px; filter: brightness(1.38);}
     }
-    .glow-divider {
-      margin: 0 auto 38px auto;
-      height: 6px;
-      width: 74px;
-      background: linear-gradient(90deg, #1fd1f9, #fff 60%, #ff6c6c 100%);
-      border-radius: 14px;
-      box-shadow: 0 3px 22px #1fd1f9bb, 0 1px 7px #ff6c6c88;
-      animation: shineLine 4.5s linear infinite alternate;
+    .cyber-divider {
+      height: 7px;
+      width: 92px;
+      background: linear-gradient(90deg, #20d6ff 20%, #ff16ff 80%);
+      border-radius: 16px;
+      margin: 0 auto 43px auto;
+      box-shadow: 0 4px 33px #20d6ff77, 0 1px 12px #ff18ff66;
+      animation: cyberShine 2.8s linear infinite alternate;
     }
-    @keyframes shineLine {
-      from { filter: brightness(1) blur(0px);}
-      to   { filter: brightness(1.5) blur(3.1px);}
+    @keyframes cyberShine {
+      from {filter: blur(0);}
+      to {filter: blur(3.5px);}
     }
     table {
       width: 100%;
-      margin: 0 auto 0 auto;
-      background: rgba(23,35,57,0.93);
-      box-shadow: 0 9px 38px #1fd1f911, 0 0px 4px #23e6fa44;
-      border-radius: 26px;
+      margin: 0 auto;
+      background: linear-gradient(110deg, #202944 83%, #ff18ff12 100%);
+      box-shadow: 0 15px 55px #20d6ff22, 0 0px 9px #ff18ff33;
+      border-radius: 34px;
       overflow: hidden;
       border-collapse: separate;
       border-spacing: 0;
-      font-size: 1.13em;
-      animation: fadeTable 1.5s;
-      border: 2.5px solid #1fd1f922;
+      font-size: 1.19em;
+      border: 2.5px solid #20d6ff66;
+      filter: brightness(1.12) drop-shadow(0 2px 7px #fff2);
     }
-    @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
     th, td {
-      padding: 24px 13px;
+      padding: 23px 11px;
       text-align: center;
       border: none;
     }
     th {
-      background: linear-gradient(90deg, #25324b 70%, #21d1f955 100%);
-      color: #30fff8;
+      background: linear-gradient(90deg, #1a2644 80%, #20d6ff33 100%);
+      color: #fff;
       font-family: 'Orbitron', 'Montserrat', 'Cairo', sans-serif;
       font-weight: 900;
-      font-size: 1.18em;
-      letter-spacing: 1.3px;
-      border-bottom: 3.5px solid #27e1f9;
+      font-size: 1.22em;
+      letter-spacing: 2.6px;
+      border-bottom: 3.5px solid #20d6ffcc;
       user-select: none;
-      text-shadow: 0 2px 13px #1fd1f9bb;
-      filter: brightness(1.09);
+      text-shadow: 0 3px 18px #20d6ff, 0 1px 14px #fff8;
+      filter: brightness(1.11);
     }
     tr.data-row {
       color: #fff;
       font-weight: 900;
       font-family: 'Cairo', 'Montserrat', sans-serif;
-      text-shadow: 0 2px 18px #21d1f9aa, 0 1px 11px #fff8;
-      background: linear-gradient(92deg, #101320 63%, #1fd1f9 130%);
+      text-shadow: 0 2px 23px #fff, 0 1px 12px #20d6ff;
+      background: linear-gradient(88deg, #14192e 65%, #20d6ff 135%);
       border-radius: 13px;
-      transition: background .18s, box-shadow .18s;
-      filter: brightness(1.22);
+      filter: brightness(1.39);
+      transition: background .16s, box-shadow .18s;
+      box-shadow: 0 2px 23px #20d6ff11;
     }
     tr.data-row:hover {
-      background: linear-gradient(90deg, #1fd1f9 5%, #21d19f 98%);
+      background: linear-gradient(90deg, #20d6ff 5%, #ff50fa 95%);
       color: #fff;
-      box-shadow: 0 6px 22px #1fd1f977, 0 5px 13px #fff3;
-      filter: brightness(1.33);
-      border-radius: 16px;
+      box-shadow: 0 8px 29px #ff18ff44, 0 5px 19px #fff4;
+      filter: brightness(1.65);
+      border-radius: 18px;
     }
     .status-cell {
-      border-radius: 15px;
-      min-width: 82px;
+      border-radius: 22px;
+      min-width: 88px;
       display: inline-block;
-      padding: 13px 25px;
-      font-size: 1.22em;
-      box-shadow: 0 3px 19px #21d1f999, 0 1px 9px #fff7;
+      padding: 16px 27px;
+      font-size: 1.24em;
+      box-shadow: 0 3px 25px #20d6ff99, 0 1px 13px #fff8;
       font-weight: 900;
-      letter-spacing: 1.21px;
-      background: linear-gradient(90deg, #1fd1f9, #21d19f 70%, #fff 120%);
+      letter-spacing: 2.1px;
+      background: linear-gradient(90deg, #20d6ff 30%, #ff18ff 90%);
       color: #fff;
-      border: 3px solid #1fd1f9cc;
-      filter: brightness(1.24) drop-shadow(0 1px 9px #1fd1f977);
+      border: 3px solid #fff2;
+      filter: brightness(1.31) drop-shadow(0 1px 11px #fff7);
       transition: filter .21s, box-shadow .18s;
-      text-shadow: 0 1px 12px #fff7;
+      text-shadow: 0 1px 17px #fff9, 0 0 6px #20d6ff77;
     }
     .delete-btn {
-      background: linear-gradient(90deg, #ff5858 25%, #21d19f 100%);
+      background: linear-gradient(90deg, #ff50fa 30%, #20d6ff 100%);
       color: #fff;
       border: none;
-      border-radius: 22px;
-      padding: 23px 100px;
-      font-size: 1.29rem;
-      margin: 58px auto 0 auto;
+      border-radius: 23px;
+      padding: 26px 120px;
+      font-size: 1.4rem;
+      margin: 60px auto 0 auto;
       cursor: pointer;
       font-weight: 900;
-      letter-spacing: 1.7px;
-      box-shadow: 0 16px 42px #e74c3c28, 0 2px 19px #21d19f33;
-      transition: background 0.21s, box-shadow 0.19s, transform .19s;
-      display: block;
-      outline: none;
-      border-bottom: 4px solid #21d19f;
-      animation: btnin 1.4s;
-    }
-    @keyframes btnin { from {opacity:0;transform:scale(.98);} to {opacity:1;transform:scale(1);}}
-    .delete-btn:hover {
-      background: linear-gradient(90deg, #21d19f 5%, #ff5858 100%);
-      box-shadow: 0 22px 32px #1fd1f933, 0 9px 23px #ff585899;
-      transform: scale(1.07) translateY(-4px);
       letter-spacing: 2.5px;
+      box-shadow: 0 18px 54px #ff18ff11, 0 6px 18px #20d6ff33;
+      outline: none;
+      border-bottom: 4.6px solid #ff18ff;
+      display: block;
+      transition: all 0.25s;
+      animation: deletePulse 1.6s cubic-bezier(.8,.2,.6,1) infinite alternate;
     }
-    @media (max-width: 950px) {
-      .dashboard-glass { padding: 14px 2vw 24px 2vw; }
-      th, td { font-size: 0.95em; padding: 12px 2px;}
+    @keyframes deletePulse {
+      from { filter: brightness(1) blur(0);}
+      to   { filter: brightness(1.7) blur(2px);}
     }
-    @media (max-width: 600px) {
-      table, th, td { font-size: 0.81em; }
-      .dashboard-glass { max-width:100vw;}
-      th { font-size: 1.05em; }
-      .delete-btn { padding: 15px 4vw;}
+    .delete-btn:hover {
+      background: linear-gradient(90deg, #20d6ff 5%, #ff50fa 95%);
+      box-shadow: 0 22px 52px #20d6ff44, 0 9px 24px #ff18ff99;
+      letter-spacing: 4.5px;
+      transform: scale(1.12) translateY(-6px) rotate(-2deg);
+      filter: brightness(2.1);
     }
-    ::selection { background: #1fd1f966;}
-    ::-webkit-scrollbar { width: 9px; background: #233452; border-radius: 10px;}
-    ::-webkit-scrollbar-thumb { background: #1fd1f9cc; border-radius: 10px;}
+    @media (max-width: 1200px) {
+      .quantum-glass { padding: 10px 1vw 22px 1vw; }
+      th, td { font-size: 0.95em; padding: 9px 1vw;}
+    }
+    @media (max-width: 700px) {
+      .quantum-glass { max-width: 100vw;}
+      th { font-size: 1.08em; }
+      .delete-btn { padding: 14px 2vw;}
+    }
+    ::selection { background: #20d6ff66;}
+    ::-webkit-scrollbar { width: 11px; background: #14192e; border-radius: 14px;}
+    ::-webkit-scrollbar-thumb { background: #20d6ffcc; border-radius: 14px;}
   </style>
 </head>
 <body>
-  <div class="dashboard-glass">
-    <h1 class="title-future">🦾 MILANO Booking NeoLog</h1>
-    <div class="glow-divider"></div>
+  <div class="quantum-glass">
+    <h1 class="log-title">🚀 MILANO NeoLog</h1>
+    <div class="cyber-divider"></div>
     <table>
       <tr>
         <th>Date</th>
@@ -478,17 +488,17 @@ app.get('/', requireLogin, (req, res) => {
       ${logs.map(log => `
         <tr class="data-row">
           <td><b>${log.day || ''}</b></td>
-          <td style="font-family:monospace; font-size:1.15em;">${log.time || ''}</td>
+          <td style="font-family:monospace; font-size:1.18em;">${log.time || ''}</td>
           <td>
             <span class="status-cell">${log.status ? log.status : '-'}</span>
           </td>
           <td>${log.ip || ''}</td>
-          <td style="font-size:0.95em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+          <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
           <td style="font-size:0.88em;word-break:break-all">${log.userAgent || ''}</td>
         </tr>
       `).join('')}
     </table>
-    <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+    <button class="delete-btn" onclick="deleteAllLogs(event)">🪐 DELETE ALL</button>
     <script>
       function deleteAllLogs(e) {
         e.preventDefault();
@@ -502,6 +512,7 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
+
 
 
   `);
