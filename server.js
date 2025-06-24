@@ -33,6 +33,11 @@ function loginPage(error = "") {
   <title>Login | MILANO Log</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     body {
       min-height: 100vh;
       background: linear-gradient(145deg,#17243d 0%,#1d2846 100%);
@@ -41,6 +46,9 @@ function loginPage(error = "") {
       justify-content: center;
       margin: 0;
       overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
     }
     .moon {
       position: absolute;
@@ -57,9 +65,19 @@ function loginPage(error = "") {
       animation: moonGlow 5s ease-in-out infinite alternate;
     }
     @keyframes moonGlow { to { box-shadow:0 0 240px 80px #fffbeea0, 0 0 480px 200px #bcd3e788;} }
+    .centerer {
+      min-height: 100vh;
+      min-width: 100vw;
+      position: absolute;
+      top: 0; left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      pointer-events: none;
+    }
     .glass-card {
       position: relative;
-      z-index: 10;
       background: rgba(32,36,49,0.97);
       border-radius: 20px;
       box-shadow: 0 10px 40px 0 #002b4e77, 0 2px 18px #bcd3e755;
@@ -71,6 +89,7 @@ function loginPage(error = "") {
       align-items: center;
       backdrop-filter: blur(2.2px);
       animation: cardIn 1.2s cubic-bezier(.72,1.3,.58,1) 1;
+      pointer-events: all;
     }
     @keyframes cardIn {
       from { transform: scale(.95) translateY(60px); opacity: 0; }
@@ -161,34 +180,33 @@ function loginPage(error = "") {
 </head>
 <body>
   <div class="moon"></div>
-  <form class="glass-card" method="POST" autocomplete="off">
-    <div class="logo">MILANO Wano Log</div>
-    <h2>Sign in to Wano Panel</h2>
-    ${error ? `<div class="error-msg">${error}</div>` : ""}
-    <div class="login-form">
-      <div class="input-box">
-        <input name="username" type="text" required placeholder="Username" autocomplete="username">
-        <span class="icon">👤</span>
+  <div class="centerer">
+    <form class="glass-card" method="POST" autocomplete="off">
+      <div class="logo">MILANO Wano Log</div>
+      <h2>Sign in to Wano Panel</h2>
+      <!-- error message -->
+      ${error ? `<div class="error-msg">${error}</div>` : ""}
+      <div class="login-form">
+        <div class="input-box">
+          <input name="username" type="text" required placeholder="Username" autocomplete="username">
+          <span class="icon">👤</span>
+        </div>
+        <div class="input-box">
+          <input name="password" type="password" required placeholder="Password" autocomplete="current-password">
+          <span class="icon">🔒</span>
+        </div>
+        <button class="login-btn" type="submit">Sign In</button>
       </div>
-      <div class="input-box">
-        <input name="password" type="password" required placeholder="Password" autocomplete="current-password">
-        <span class="icon">🔒</span>
-      </div>
-      <button class="login-btn" type="submit">Sign In</button>
-    </div>
-  </form>
+    </form>
+  </div>
   <canvas id="sakura"></canvas>
   <script>
-    // Simple sakura petals
+    // Sakura code as before...
     const canvas = document.getElementById('sakura');
     const ctx = canvas.getContext('2d');
     let petals = [];
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
     function Petal() {
       this.x = Math.random() * canvas.width;
       this.y = -20;
@@ -218,7 +236,6 @@ function loginPage(error = "") {
         this.x += this.wind;
         this.rot += this.spin;
         if(this.y > canvas.height + 10 || this.x < -20 || this.x > canvas.width+20) {
-          // respawn
           this.x = Math.random() * canvas.width;
           this.y = -20;
         }
