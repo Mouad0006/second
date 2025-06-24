@@ -373,7 +373,7 @@ app.get('/', requireLogin, (req, res) => {
   }
 
   res.send(`
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -391,25 +391,6 @@ app.get('/', requireLogin, (req, res) => {
       flex-direction: column;
       align-items: center;
     }
-    /* الشق الجانبي */
-    .milano-crack {
-      position: fixed;
-      left: 0;
-      top: 5vh;
-      height: 90vh;
-      width: 38px;
-      background: radial-gradient(ellipse at 12px 50%, #fff7, #ffeaa033 60%, #e9644344 100%);
-      border-radius: 0 30px 30px 0;
-      box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344;
-      z-index: 8;
-      animation: crack-glow 2.8s infinite alternate;
-      transition: box-shadow 0.4s;
-    }
-    @keyframes crack-glow {
-      0% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
-      70% { box-shadow: 0 0 55px 36px #ffeaa088, 0 0 270px 80px #e96443bb; }
-      100% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
-    }
     .container {
       margin-top: 64px;
       width: 98vw;
@@ -421,7 +402,6 @@ app.get('/', requireLogin, (req, res) => {
       animation: fadeInUp 1.1s cubic-bezier(.72,1.3,.58,1) 1;
       backdrop-filter: blur(2.8px);
       position: relative;
-      z-index: 10;
     }
     @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 {
@@ -483,29 +463,27 @@ app.get('/', requireLogin, (req, res) => {
     tr:nth-child(even) {
       background: #23243b77;
     }
-    /* حركة ظهور اللوجات من الشق */
     .samurai-row {
       opacity: 0;
-      transform: translateX(-90px) scale(0.97);
-      animation-duration: 1.12s;
+      transform: translateX(0);
+      animation-duration: 1.17s;
       animation-fill-mode: forwards;
-      will-change: opacity, transform;
     }
     .samurai-row.left {
-      animation-name: samurai-in-from-crack;
+      animation-name: samurai-in-left;
     }
     .samurai-row.right {
-      animation-name: samurai-in-from-crack2;
+      animation-name: samurai-in-right;
     }
-    @keyframes samurai-in-from-crack {
-      0% {opacity:0;transform:translateX(-90px) scale(0.94);}
-      60%{opacity:.99;}
-      100%{opacity:1;transform:translateX(0) scale(1);}
-    }
-    @keyframes samurai-in-from-crack2 {
-      0% {opacity:0;transform:translateX(-110px) scale(0.93);}
+    @keyframes samurai-in-left {
+      0% {opacity:0;transform:translateX(-80vw);}
       60%{opacity:.98;}
-      100%{opacity:1;transform:translateX(0) scale(1);}
+      100%{opacity:1;transform:translateX(0);}
+    }
+    @keyframes samurai-in-right {
+      0% {opacity:0;transform:translateX(80vw);}
+      60%{opacity:.98;}
+      100%{opacity:1;transform:translateX(0);}
     }
     .status-cell {
       border-radius: 14px;
@@ -541,6 +519,25 @@ app.get('/', requireLogin, (req, res) => {
       transform: scale(1.045) translateY(-4px);
       letter-spacing: 2px;
     }
+    .katana-slash {
+      position: fixed;
+      top: 0;
+      left: 50vw;
+      width: 7px;
+      height: 100vh;
+      background: linear-gradient(180deg,#fff,#ff8b60,#ff3864,#fff);
+      box-shadow: 0 0 40px 15px #fff7, 0 0 180px 35px #ff386422;
+      border-radius: 6px;
+      z-index: 9999;
+      animation: katana-slash-in .54s cubic-bezier(.95,-0.04,.29,1.24);
+      pointer-events: none;
+    }
+    @keyframes katana-slash-in {
+      0%   { opacity: 0; transform: scaleY(0) translateX(0);}
+      40%  { opacity: 1; transform: scaleY(1.08) translateX(-2vw);}
+      80%  { opacity: 1;}
+      100% { opacity: 0; transform: scaleY(1) translateX(8vw);}
+    }
     td, th {
       color: #fff;
       text-shadow: 0 2px 16px #fff6, 0 1px 8px #ff3864a8;
@@ -565,7 +562,12 @@ app.get('/', requireLogin, (req, res) => {
   </style>
 </head>
 <body>
-  <div class="milano-crack"></div>
+  <div class="katana-slash"></div>
+  <script>
+    setTimeout(() => {
+      document.querySelector('.katana-slash')?.remove();
+    }, 850);
+  </script>
   <div class="container">
     <h1>武士 MILANO LOG</h1>
     <table>
@@ -576,22 +578,19 @@ app.get('/', requireLogin, (req, res) => {
         <th>IP</th>
         <th>Client</th>
       </tr>
-      <!-- أمثلة: استبدل هذه الصفوف بالتوليد الديناميكي من السيرفر -->
-      <tr class="samurai-row left" style="animation-delay:0.23s">
-        <td><b>2025-06-24</b></td>
-        <td style="font-family:monospace;">15:34:11</td>
-        <td><span class="status-cell">200</span></td>
-        <td>105.231.XX.XX</td>
-        <td style="color:#21d19f;">Firefox</td>
-      </tr>
-      <tr class="samurai-row right" style="animation-delay:0.33s">
-        <td><b>2025-06-24</b></td>
-        <td style="font-family:monospace;">15:36:21</td>
-        <td><span class="status-cell">200</span></td>
-        <td>197.143.XX.XX</td>
-        <td style="color:#21d19f;">Chrome</td>
-      </tr>
-      <!-- ... أضف المزيد حسب الحاجة -->
+      ${
+        logs.length === 0
+          ? `<tr class="samurai-row left"><td colspan="5" style="color:#ffa;">No data found yet.</td></tr>`
+          : logs.map((log, i) => `
+        <tr class="samurai-row ${i % 2 === 0 ? 'left' : 'right'}">
+          <td><b>${escape(log.day)}</b></td>
+          <td style="font-family:monospace;">${escape(log.time)}</td>
+          <td><span class="status-cell">${escape(log.status)}</span></td>
+          <td>${escape(log.ip)}</td>
+          <td style="color:#21d19f;">${escape(log.userAgent || log.href || '')}</td>
+        </tr>
+      `).join('')
+      }
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
     <script>
@@ -604,18 +603,15 @@ app.get('/', requireLogin, (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
-      // صفوف اللوجات تظهر بتسلسل حركة من الشق
       window.addEventListener("DOMContentLoaded",()=>{
         document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = `${0.23 + i*0.10}s`;
+          row.style.animationDelay = \`\${0.23 + i*0.11}s\`;
         });
       });
     </script>
   </div>
 </body>
 </html>
-
-
   `);
 });
 
@@ -652,5 +648,6 @@ app.get('/min-second', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(\`Server is running at http://localhost:${port}\`);
 });
+
