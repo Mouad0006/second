@@ -224,7 +224,6 @@ app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const body = req.body || {};
-  // تحقق ألا يسجل أكثر من طلب 200 لنفس الآيبي خلال 5 دقائق
   if (body.status == 200) {
     let allowLog = true;
     if (fs.existsSync(pathLog)) {
@@ -259,7 +258,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// الصفحة الرئيسية - جدول اللوجات مع لمسات ساموراي
+// صفحة الجدول العصرية جداً مع مؤثرات ساكورا وساموراي
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -288,7 +287,7 @@ app.get('/', requireLogin, (req, res) => {
   }
 
   res.send(`
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -297,7 +296,7 @@ app.get('/', requireLogin, (req, res) => {
   <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&family=Zen+Kaku+Gothic+New:wght@900&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(120deg, #141416 0%, #231a24 100%);
+      background: linear-gradient(120deg, #191723 0%, #231a24 100%);
       min-height: 100vh;
       font-family: 'Cairo', 'Zen Kaku Gothic New', Arial, sans-serif;
       margin: 0;
@@ -306,34 +305,41 @@ app.get('/', requireLogin, (req, res) => {
       flex-direction: column;
       align-items: center;
     }
+    /* Canvas sakura */
+    #sakura-canvas {
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.44;
+      filter: blur(0.5px);
+      background: transparent;
+    }
+    /* دخان */
     .smoke-bg {
       pointer-events: none;
       position: fixed;
       left: 0; top: 0;
       width: 100vw; height: 100vh;
-      z-index: 0;
+      z-index: 1;
       opacity: 0.17;
       background: url('https://svgshare.com/i/18sN.svg') repeat-x 0 30%;
       background-size: 700px;
       animation: smoke-move 23s linear infinite;
     }
-    @keyframes smoke-move { 
-      0% { background-position-x: 0;}
-      100% { background-position-x: 700px;}
-    }
+    @keyframes smoke-move { 0% { background-position-x: 0;} 100% { background-position-x: 700px;} }
     /* Katana Slash */
     .katana-slash {
       position: fixed;
       left: 0; top: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100vw; height: 100vh;
       z-index: 99;
       pointer-events: none;
       background: linear-gradient(70deg, #fff 2%, #fff3 10%, #fa0 80%, #fff0 90%);
       box-shadow: 0 0 120px 35px #fff9, 0 0 250px 70px #fa0884aa;
       opacity: 1;
       transform: scaleY(0.98) rotate(-4deg);
-      animation: katana-anim 0.99s cubic-bezier(.71,1.6,.48,.93) 1;
+      animation: katana-anim 1.11s cubic-bezier(.71,1.6,.48,.93) 1;
     }
     @keyframes katana-anim {
       0% { opacity:0; transform: scaleY(0.14) rotate(-44deg);}
@@ -364,7 +370,7 @@ app.get('/', requireLogin, (req, res) => {
       margin-top: 64px;
       width: 98vw;
       max-width: 1150px;
-      background: rgba(31,34,57,0.97);
+      background: rgba(31,34,57,0.96);
       border-radius: 32px;
       box-shadow: 0 20px 60px #0008, 0 2px 16px #ffe45a44, 0 0px 2px 1px #b4b6fa77;
       padding: 54px 18px 38px 18px;
@@ -376,9 +382,9 @@ app.get('/', requireLogin, (req, res) => {
     @keyframes fadeInUp { from { opacity:0; transform:translateY(70px) scale(.91);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 {
       text-align: center;
-      font-size: 2.34rem;
+      font-size: 2.33rem;
       color: #fff;
-      letter-spacing: 2.4px;
+      letter-spacing: 2.6px;
       font-weight: 900;
       margin-bottom: 44px;
       background: linear-gradient(90deg, #ffcc43 14%, #c41f1f 90%);
@@ -411,7 +417,7 @@ app.get('/', requireLogin, (req, res) => {
       border-collapse: separate;
       border-spacing: 0;
       margin-top: 18px;
-      background: rgba(44, 49, 80, 0.97);
+      background: rgba(44, 49, 80, 0.96);
       box-shadow: 0 8px 36px #c41f1f19, 0 6px 28px #ffcc4317;
       border-radius: 18px;
       overflow: hidden;
@@ -527,6 +533,7 @@ app.get('/', requireLogin, (req, res) => {
   </style>
 </head>
 <body>
+  <canvas id="sakura-canvas"></canvas>
   <div class="smoke-bg"></div>
   <div class="katana-slash"></div>
   <div class="milano-crack"></div>
@@ -556,6 +563,13 @@ app.get('/', requireLogin, (req, res) => {
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     <script>
+      // Katana Slash animation remove
+      window.addEventListener("DOMContentLoaded",()=>{
+        document.querySelectorAll('.samurai-row').forEach((row,i)=>{
+          row.style.animationDelay = \`\${0.45 + i*0.10}s\`;
+        });
+        setTimeout(()=>document.querySelector('.katana-slash')?.remove(), 1400);
+      });
       function deleteAllLogs(e) {
         e.preventDefault();
         if (!confirm('Are you sure you want to delete all records?')) return;
@@ -565,13 +579,75 @@ app.get('/', requireLogin, (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
-      // حركة samurai rows: ضربة سيف مع الشق
-      window.addEventListener("DOMContentLoaded",()=>{
-        document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = \`\${0.42 + i*0.10}s\`;
-        });
-        setTimeout(()=>document.querySelector('.katana-slash')?.remove(), 1300);
-      });
+      // Sakura Petals Falling
+      const canvas = document.getElementById('sakura-canvas');
+      const ctx = canvas.getContext('2d');
+      let width = window.innerWidth, height = window.innerHeight;
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      const petalImg = (() => {
+        let img = new window.Image();
+        img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
+        return img;
+      })();
+      function random(min, max) { return min + Math.random() * (max - min); }
+      class Petal {
+        constructor() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 28);
+          this.speed = random(0.6, 1.55);
+          this.swing = random(0.8, 2.1);
+          this.amp = random(6, 33);
+          this.phase = random(0, Math.PI * 2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.015, 0.011);
+          this.opacity = random(0.5, 1);
+        }
+        move() {
+          this.y += this.speed;
+          this.x += Math.sin(this.y / 30 + this.phase) * this.swing;
+          this.angle += this.spin;
+          if (this.y > height + 30) this.reset();
+        }
+        reset() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 28);
+          this.speed = random(0.6, 1.55);
+          this.swing = random(0.8, 2.1);
+          this.amp = random(6, 33);
+          this.phase = random(0, Math.PI * 2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.015, 0.011);
+          this.opacity = random(0.5, 1);
+        }
+        draw(ctx) {
+          ctx.save();
+          ctx.globalAlpha = this.opacity;
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.angle);
+          ctx.drawImage(petalImg, -this.r/2, -this.r/2, this.r, this.r);
+          ctx.restore();
+        }
+      }
+      const petals = [];
+      for(let i=0;i<24;i++) petals.push(new Petal());
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for (let petal of petals) {
+          petal.move();
+          petal.draw(ctx);
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
     </script>
   </div>
 </body>
