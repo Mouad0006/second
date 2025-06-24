@@ -668,6 +668,37 @@ app.post('/', (req, res) => {
     res.send(loginPage("Invalid username or password!"));
   }
 });
+// Endpoint لجلب أقل ثانية مسجلة
+app.get('/min-second', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  let minSecond = null;
+  if (fs.existsSync(pathLog)) {
+    const data = fs.readFileSync(pathLog, 'utf-8').trim().split('\n');
+    let secondsArr = [];
+    for (const line of data) {
+      const [date, ip, infoRaw] = line.split(',', 3);
+      let info = {};
+      try { info = JSON.parse(infoRaw); } catch {}
+      let second = null;
+      if (info.status == 200 && info.isoTime) {
+        try {
+          second = new Date(info.isoTime).getSeconds();
+        } catch {}
+      } else if (info.status == 200 && date) {
+        try {
+          second = new Date(date).getSeconds();
+        } catch {}
+      }
+      if (second !== null && !isNaN(second)) secondsArr.push(second);
+    }
+    if (secondsArr.length > 0) minSecond = Math.min(...secondsArr);
+  }
+  if (minSecond !== null) {
+    res.json({ minSecond });
+  } else {
+    res.json({ minSecond: null, message: "لا يوجد بيانات بعد" });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
