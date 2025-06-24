@@ -291,296 +291,212 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>🗡️ 武士 MILANO LOG</title>
+  <title>SAMURAI LOG - MILANO 2200</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&family=Zen+Kaku+Gothic+New:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(120deg, #191723 0%, #231a24 100%);
+    html, body {
       min-height: 100vh;
-      font-family: 'Cairo', 'Zen Kaku Gothic New', Arial, sans-serif;
       margin: 0;
+      background: linear-gradient(135deg, #171b26 0%, #253348 100%);
+      font-family: 'Noto Sans JP', 'Montserrat', 'Segoe UI', Arial, sans-serif;
+      color: #eee;
       overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      letter-spacing: 0.04em;
     }
-    /* Canvas sakura */
-    #sakura-canvas {
+    /* Canvas فوق كل الخلفيات */
+    #sakura-bg {
       position: fixed;
-      left: 0; top: 0; width: 100vw; height: 100vh;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.44;
-      filter: blur(0.5px);
-      background: transparent;
+      opacity: 0.33;
     }
-    /* دخان */
-    .smoke-bg {
-      pointer-events: none;
-      position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      z-index: 1;
-      opacity: 0.17;
-      background: url('https://svgshare.com/i/18sN.svg') repeat-x 0 30%;
-      background-size: 700px;
-      animation: smoke-move 23s linear infinite;
-    }
-    @keyframes smoke-move { 0% { background-position-x: 0;} 100% { background-position-x: 700px;} }
-    /* Katana Slash */
-    .katana-slash {
-      position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      z-index: 99;
-      pointer-events: none;
-      background: linear-gradient(70deg, #fff 2%, #fff3 10%, #fa0 80%, #fff0 90%);
-      box-shadow: 0 0 120px 35px #fff9, 0 0 250px 70px #fa0884aa;
-      opacity: 1;
-      transform: scaleY(0.98) rotate(-4deg);
-      animation: katana-anim 1.11s cubic-bezier(.71,1.6,.48,.93) 1;
-    }
-    @keyframes katana-anim {
-      0% { opacity:0; transform: scaleY(0.14) rotate(-44deg);}
-      40%{ opacity:1; transform: scaleY(1.08) rotate(-4deg);}
-      80% { opacity:.7;}
-      100%{ opacity:0; transform: scaleY(1) rotate(-4deg);}
-    }
-    /* الشق الجانبي */
-    .milano-crack {
-      position: fixed;
-      left: 0;
-      top: 5vh;
-      height: 90vh;
-      width: 38px;
-      background: radial-gradient(ellipse at 12px 50%, #fff7, #ffeaa033 60%, #e9644344 100%);
-      border-radius: 0 30px 30px 0;
-      box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344;
-      z-index: 8;
-      animation: crack-glow 2.8s infinite alternate;
-      transition: box-shadow 0.4s;
-    }
-    @keyframes crack-glow {
-      0% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
-      70% { box-shadow: 0 0 55px 36px #ffeaa088, 0 0 270px 80px #e96443bb; }
-      100% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
-    }
-    .container {
-      margin-top: 64px;
-      width: 98vw;
-      max-width: 1150px;
-      background: rgba(31,34,57,0.96);
-      border-radius: 32px;
-      box-shadow: 0 20px 60px #0008, 0 2px 16px #ffe45a44, 0 0px 2px 1px #b4b6fa77;
-      padding: 54px 18px 38px 18px;
-      animation: fadeInUp 1.18s cubic-bezier(.82,1.5,.68,1) 1;
-      backdrop-filter: blur(3.2px);
+    .samurai-glass {
+      margin: 55px auto 0 auto;
+      width: 99vw;
+      max-width: 1220px;
+      background: rgba(27,30,40,0.98);
+      border-radius: 40px;
+      box-shadow: 0 0 110px #ad1212a0, 0 2px 24px #c3a96f55, 0 0px 10px 2px #ffe18f38;
+      padding: 54px 2vw 48px 2vw;
       position: relative;
-      z-index: 10;
+      border: 2.5px solid #c3a96f;
+      animation: appear 1.25s cubic-bezier(.61,1.1,.47,1) 1;
+      z-index: 2;
     }
-    @keyframes fadeInUp { from { opacity:0; transform:translateY(70px) scale(.91);} to {opacity:1;transform:translateY(0) scale(1);}}
-    h1 {
+    @keyframes appear {
+      from { opacity: 0; transform: scale(0.93) translateY(70px);}
+      to { opacity: 1; transform: scale(1) translateY(0);}
+    }
+    .samurai-title {
       text-align: center;
-      font-size: 2.33rem;
-      color: #fff;
-      letter-spacing: 2.6px;
+      font-size: 3rem;
+      font-family: 'Noto Sans JP', 'Montserrat', sans-serif;
+      letter-spacing: 9px;
       font-weight: 900;
-      margin-bottom: 44px;
-      background: linear-gradient(90deg, #ffcc43 14%, #c41f1f 90%);
+      margin-bottom: 30px;
+      color: #ffe18f;
+      text-shadow: 0 4px 32px #ad1212b5, 0 1px 14px #c3a96fdd;
+      user-select: none;
+      line-height: 1.2;
+      border-bottom: 4px solid #ad1212;
+      padding-bottom: 13px;
+      background: linear-gradient(90deg, #ffe18f 60%, #ad1212 90%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 11px 36px #ad121265, 0 1px 14px #ffe45a90;
-      position: relative;
-      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
-      user-select: none;
+      filter: brightness(1.09);
     }
-    h1 .icon { font-size: 2.6rem; margin-right: 8px; vertical-align: -3px;}
-    h1 .jp { font-size: 1.13em; letter-spacing: 3.2px;}
-    h1::after {
-      content: '';
-      display: block;
-      margin: 0 auto;
-      margin-top: 17px;
-      height: 4px;
-      width: 96px;
-      border-radius: 6px;
-      background: linear-gradient(90deg, #ffcc43 5%, #c41f1f 100%);
-      opacity: 0.63;
-      box-shadow: 0 2px 12px #ffe45a33;
-      animation: shine 2.7s linear infinite;
+    .samurai-divider {
+      height: 6px;
+      width: 85px;
+      background: linear-gradient(90deg, #ad1212 40%, #ffe18f 100%);
+      border-radius: 11px;
+      margin: 0 auto 33px auto;
+      box-shadow: 0 4px 28px #ad1212bb, 0 1px 12px #c3a96f99;
     }
-    @keyframes shine {0% {opacity:.25;}50% {opacity:1;}100% {opacity:.25;}}
     table {
       width: 100%;
+      margin: 0 auto;
+      background: linear-gradient(120deg, #23262c 87%, #ad12121b 100%);
+      box-shadow: 0 6px 28px #ad121211, 0 0px 6px #ffe18f11;
+      border-radius: 24px;
+      overflow: hidden;
       border-collapse: separate;
       border-spacing: 0;
-      margin-top: 18px;
-      background: rgba(44, 49, 80, 0.96);
-      box-shadow: 0 8px 36px #c41f1f19, 0 6px 28px #ffcc4317;
-      border-radius: 18px;
-      overflow: hidden;
-      font-size: 1.16em;
-      animation: fadeTable 1.5s;
+      font-size: 1.15em;
+      border: 1.7px solid #ad1212;
     }
-    @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
-    th, td {padding:17px 7px;text-align:center;border:none;}
+    th, td {
+      padding: 18px 8px;
+      text-align: center;
+      border: none;
+    }
     th {
-      background: linear-gradient(90deg, #231a24 60%, #c41f1f33 100%);
-      color: #ffcc43;
+      background: linear-gradient(90deg, #20232a 90%, #ffe18f15 100%);
+      color: #ffe18f;
+      font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
       font-weight: 900;
-      font-size: 1.14em;
-      letter-spacing: 1.15px;
-      border-bottom: 2.7px solid #c41f1f33;
+      font-size: 1.1em;
+      letter-spacing: 2px;
+      border-bottom: 2.2px solid #ad1212;
       user-select: none;
-      transition: background .22s;
-      position: relative;
-      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
-      text-shadow: 0 1px 9px #c41f1f55, 0 1px 3px #ffe45a44;
+      text-shadow: 0 2px 10px #ad1212bb, 0 1px 5px #ffe18fcc;
     }
-    tr {
-      transition: background 0.22s;
+    tr.data-row {
+      color: #fff;
+      font-weight: 900;
+      font-family: 'Noto Sans JP', 'Montserrat', sans-serif;
+      background: linear-gradient(88deg, #21232b 80%, #ad1212 145%);
+      border-radius: 10px;
+      transition: background .16s, box-shadow .18s;
+      box-shadow: 0 1.5px 9px #ad121230;
+      filter: brightness(1.16);
     }
-    tr:nth-child(even) {
-      background: #23243b88;
-    }
-    /* samurai rows تظهر بضربة سيف */
-    .samurai-row {
-      opacity: 0;
-      transform: translateX(-130px) scale(0.96) skewX(-17deg);
-      animation-duration: 1.25s;
-      animation-fill-mode: forwards;
-      will-change: opacity, transform;
-      box-shadow: 0 4px 22px #c41f1f21;
-      border-left: 7px solid #ffcc434a;
-    }
-    .samurai-row.left {
-      animation-name: samurai-in-sword;
-    }
-    .samurai-row.right {
-      animation-name: samurai-in-sword2;
-    }
-    @keyframes samurai-in-sword {
-      0% {opacity:0;transform:translateX(-160px) scale(0.89) skewX(-23deg);}
-      50%{opacity:.99;}
-      100%{opacity:1;transform:translateX(0) scale(1) skewX(0);}
-    }
-    @keyframes samurai-in-sword2 {
-      0% {opacity:0;transform:translateX(-120px) scale(0.96) skewX(-11deg);}
-      55%{opacity:.98;}
-      100%{opacity:1;transform:translateX(0) scale(1) skewX(0);}
+    tr.data-row:hover {
+      background: linear-gradient(90deg, #ad1212 20%, #23262c 100%);
+      color: #ffe18f;
+      box-shadow: 0 4px 24px #ffe18f55, 0 1.5px 6px #ad1212;
+      border-radius: 14px;
+      filter: brightness(1.19);
     }
     .status-cell {
       border-radius: 14px;
-      min-width: 66px;
+      min-width: 70px;
       display: inline-block;
-      padding: 8px 15px;
-      font-size: 1em;
+      padding: 11px 18px;
+      font-size: 1.1em;
+      box-shadow: 0 3px 12px #ffe18f28, 0 1px 7px #ad121230;
       font-weight: 900;
-      letter-spacing: 1.13px;
-      color: #fff;
-      background: linear-gradient(90deg,#c41f1f,#ffcc43);
-      box-shadow: 0 2px 10px #c41f1f55;
-      border: 2.1px solid #ffcc438a;
+      letter-spacing: 1.2px;
+      background: linear-gradient(90deg, #ffe18f 50%, #ad1212 100%);
+      color: #2d2321;
+      border: 2px solid #c3a96f;
+      filter: brightness(1.07);
+      transition: filter .17s, box-shadow .15s;
+      text-shadow: 0 1px 8px #ffe18f8c, 0 0 3px #ad121288;
     }
     .delete-btn {
-      background: linear-gradient(90deg, #c41f1f, #ffcc43 90%);
+      background: linear-gradient(90deg, #ad1212 60%, #ffe18f 100%);
       color: #fff;
       border: none;
-      border-radius: 50px;
-      padding: 16px 65px;
+      border-radius: 14px;
+      padding: 16px 58px;
       font-size: 1.21rem;
-      margin: 33px auto 0 auto;
+      margin: 42px auto 0 auto;
       cursor: pointer;
       font-weight: 900;
-      letter-spacing: 1.3px;
-      box-shadow: 0 6px 18px #c41f1f33, 0 2px 7px #ffcc4344;
-      transition: background 0.23s, box-shadow 0.19s, transform .18s;
-      display: block;
-      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
-      border-bottom: 4px solid #c41f1f;
+      letter-spacing: 2px;
+      box-shadow: 0 8px 18px #ad121244, 0 3px 8px #ffe18f33;
       outline: none;
+      border-bottom: 2.7px solid #c3a96f;
+      display: block;
+      transition: all 0.21s;
     }
     .delete-btn:hover {
-      background: linear-gradient(90deg, #ffcc43 5%, #c41f1f 100%);
-      box-shadow: 0 8px 24px #c41f1f44, 0 5px 10px #ffcc4344;
-      transform: scale(1.06) translateY(-4px) rotate(-2deg);
-      letter-spacing: 2px;
-      color: #c41f1f;
-      border-bottom: 4px solid #ffcc43;
-    }
-    td, th {
-      color: #fff;
-      font-weight: 900;
-    }
-    tr.samurai-row {
-      background: rgba(44, 49, 80, 0.93);
-      border-radius: 18px;
+      background: linear-gradient(90deg, #ffe18f 20%, #ad1212 100%);
+      box-shadow: 0 16px 40px #ad121244, 0 6px 16px #ffe18f77;
+      letter-spacing: 3.5px;
+      transform: scale(1.08) translateY(-3px) rotate(-1.5deg);
+      filter: brightness(1.15);
+      color: #ad1212;
     }
     @media (max-width: 900px) {
-      .container { padding: 7px 2px;}
-      th,td{font-size:0.98em;padding:11px 2px;}
+      .samurai-glass { padding: 13px 1vw 21px 1vw;}
+      th, td { font-size: 0.95em; padding: 6px 1vw;}
     }
-    @media (max-width:600px){
-      table,th,td{font-size:0.85em;}
-      .container{max-width:100vw;}
-      th{font-size:1.05em;}
+    @media (max-width: 600px) {
+      .samurai-glass { max-width: 100vw; }
+      th { font-size: 1em; }
+      .delete-btn { padding: 10px 2vw;}
     }
-    ::selection {background: #ffcc4333;}
-    ::-webkit-scrollbar {width:8px;background:#23243b;border-radius:7px;}
-    ::-webkit-scrollbar-thumb {background:#c41f1f99;border-radius:7px;}
+    ::selection { background: #ffe18f33;}
+    ::-webkit-scrollbar { width: 9px; background: #1a202a; border-radius: 12px;}
+    ::-webkit-scrollbar-thumb { background: #ad1212cc; border-radius: 12px;}
   </style>
 </head>
 <body>
-  <canvas id="sakura-canvas"></canvas>
-  <div class="smoke-bg"></div>
-  <div class="katana-slash"></div>
-  <div class="milano-crack"></div>
-  <div class="container">
-    <h1><span class="icon">🗡️</span><span class="jp">武士</span> MILANO LOG</h1>
+  <canvas id="sakura-bg"></canvas>
+  <div class="samurai-glass">
+    <h1 class="samurai-title">武士 MILANO LOG 2200</h1>
+    <div class="samurai-divider"></div>
     <table>
       <tr>
         <th>Date</th>
         <th>Time</th>
         <th>Status</th>
         <th>IP</th>
-        <th>Client</th>
+        <th>Page</th>
+        <th>User Agent</th>
       </tr>
-      ${
-        logs.length === 0
-          ? `<tr class="samurai-row left"><td colspan="5" style="color:#ffa;">No data found yet.</td></tr>`
-          : logs.map((log, i) => `
-        <tr class="samurai-row ${i % 2 === 0 ? 'left' : 'right'}">
-          <td><b>${escape(log.day)}</b></td>
-          <td style="font-family:monospace;">${escape(log.time)}</td>
-          <td><span class="status-cell">${escape(log.status)}</span></td>
-          <td>${escape(log.ip)}</td>
-          <td style="color:#ffcc43;">${escape(log.userAgent || log.href || '')}</td>
+      ${logs.map(log => `
+        <tr class="data-row">
+          <td><b>${log.day || ''}</b></td>
+          <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
+          <td>
+            <span class="status-cell">${log.status ? log.status : '-'}</span>
+          </td>
+          <td>${log.ip || ''}</td>
+          <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+          <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
         </tr>
-      `).join('')
-      }
+      `).join('')}
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     <script>
-      // Katana Slash animation remove
-      window.addEventListener("DOMContentLoaded",()=>{
-        document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = \`\${0.45 + i*0.10}s\`;
-        });
-        setTimeout(()=>document.querySelector('.katana-slash')?.remove(), 1400);
-      });
       function deleteAllLogs(e) {
         e.preventDefault();
-        if (!confirm('Are you sure you want to delete all records?')) return;
         fetch('/delete-all', { method: 'POST' })
           .then(res => res.json())
           .then(json => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
-      // Sakura Petals Falling
-      const canvas = document.getElementById('sakura-canvas');
+
+      // --- Sakura Petals Animation ---
+      const canvas = document.getElementById('sakura-bg');
       const ctx = canvas.getContext('2d');
       let width = window.innerWidth, height = window.innerHeight;
       function resizeCanvas() {
@@ -591,42 +507,46 @@ app.get('/', requireLogin, (req, res) => {
       }
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
+
       const petalImg = (() => {
+        // Petal SVG as image (base64 for speed)
         let img = new window.Image();
         img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
         return img;
       })();
+
       function random(min, max) { return min + Math.random() * (max - min); }
+
       class Petal {
         constructor() {
           this.x = random(0, width);
           this.y = random(-40, -10);
-          this.r = random(12, 28);
-          this.speed = random(0.6, 1.55);
-          this.swing = random(0.8, 2.1);
-          this.amp = random(6, 33);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.7);
+          this.amp = random(8, 38);
           this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
           this.angle = random(0, 360);
-          this.spin = random(-0.015, 0.011);
-          this.opacity = random(0.5, 1);
+          this.spin = random(-0.02, 0.02);
+          this.opacity = random(0.63, 1);
         }
         move() {
           this.y += this.speed;
-          this.x += Math.sin(this.y / 30 + this.phase) * this.swing;
+          this.x += Math.sin(this.y / 32 + this.phase) * this.swing;
           this.angle += this.spin;
           if (this.y > height + 30) this.reset();
         }
         reset() {
           this.x = random(0, width);
           this.y = random(-40, -10);
-          this.r = random(12, 28);
-          this.speed = random(0.6, 1.55);
-          this.swing = random(0.8, 2.1);
-          this.amp = random(6, 33);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.7);
+          this.amp = random(8, 38);
           this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
           this.angle = random(0, 360);
-          this.spin = random(-0.015, 0.011);
-          this.opacity = random(0.5, 1);
+          this.spin = random(-0.02, 0.02);
+          this.opacity = random(0.63, 1);
         }
         draw(ctx) {
           ctx.save();
@@ -637,8 +557,10 @@ app.get('/', requireLogin, (req, res) => {
           ctx.restore();
         }
       }
+
       const petals = [];
-      for(let i=0;i<24;i++) petals.push(new Petal());
+      for(let i=0;i<32;i++) petals.push(new Petal());
+
       function animate() {
         ctx.clearRect(0, 0, width, height);
         for (let petal of petals) {
@@ -652,6 +574,7 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
+
   `);
 });
 // Endpoint لجلب أقل ثانية مسجلة
