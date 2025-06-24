@@ -22,7 +22,7 @@ app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
-// صفحة تسجيل الدخول
+// صفحة تسجيل الدخول (sakura + ساموراي)
 function loginPage(error = "") {
   return `
 <!DOCTYPE html>
@@ -219,15 +219,12 @@ function loginPage(error = "") {
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-
     const petalImg = (() => {
       let img = new window.Image();
       img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
       return img;
     })();
-
     function random(min, max) { return min + Math.random() * (max - min); }
-
     class Petal {
       constructor() {
         this.x = random(0, width);
@@ -268,10 +265,8 @@ function loginPage(error = "") {
         ctx.restore();
       }
     }
-
     const petals = [];
     for(let i=0;i<20;i++) petals.push(new Petal());
-
     function animate() {
       ctx.clearRect(0, 0, width, height);
       for (let petal of petals) {
@@ -344,7 +339,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// الصفحة الرئيسية - جدول اللوجات
+// الصفحة الرئيسية - جدول اللوجات بنفس ستايل ساموراي
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -379,12 +374,12 @@ app.get('/', requireLogin, (req, res) => {
   <meta charset="utf-8">
   <title>SAMURAI LOG - MILANO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
   <style>
     body {
       background: linear-gradient(120deg, #141e30 0%, #243b55 100%);
       min-height: 100vh;
-      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Noto Sans JP', 'Montserrat', 'Segoe UI', Arial, sans-serif;
       margin: 0;
       overflow-x: hidden;
       display: flex;
@@ -411,11 +406,11 @@ app.get('/', requireLogin, (req, res) => {
       letter-spacing: 2.2px;
       font-weight: 900;
       margin-bottom: 44px;
-      background: linear-gradient(90deg, #e96443 20%, #904e95 70%);
+      background: linear-gradient(90deg, #ffe18f 20%, #ad1212 70%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 7px 26px #c41f1f45, 0 1px 10px #1fd1f933;
+      text-shadow: 0 7px 26px #ad121245, 0 1px 10px #ffe18f77;
       position: relative;
     }
     h1::after {
@@ -426,7 +421,7 @@ app.get('/', requireLogin, (req, res) => {
       height: 4px;
       width: 76px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #e96443 5%, #904e95 100%);
+      background: linear-gradient(90deg, #ad1212 5%, #ffe18f 100%);
       opacity: 0.67;
       box-shadow: 0 2px 8px #b4b6fa33;
       animation: shine 2.7s linear infinite;
@@ -438,7 +433,7 @@ app.get('/', requireLogin, (req, res) => {
       border-spacing: 0;
       margin-top: 18px;
       background: rgba(44, 49, 80, 0.99);
-      box-shadow: 0 6px 30px #e9644333;
+      box-shadow: 0 6px 30px #ad121233;
       border-radius: 18px;
       overflow: hidden;
       font-size: 1.13em;
@@ -447,12 +442,12 @@ app.get('/', requireLogin, (req, res) => {
     @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
     th, td {padding:17px 7px;text-align:center;border:none;}
     th {
-      background: linear-gradient(90deg, #222a42 60%, #e9644322 100%);
-      color: #e96443;
+      background: linear-gradient(90deg, #222a42 60%, #ad121222 100%);
+      color: #ffe18f;
       font-weight: 900;
       font-size: 1.14em;
       letter-spacing: 1.15px;
-      border-bottom: 2.7px solid #e9644344;
+      border-bottom: 2.7px solid #ffe18f44;
       user-select: none;
       transition: background .22s;
       position: relative;
@@ -494,12 +489,12 @@ app.get('/', requireLogin, (req, res) => {
       font-weight: 900;
       letter-spacing: 1.13px;
       color: #fff;
-      background: linear-gradient(90deg,#ee0979,#ff6a00);
-      box-shadow: 0 2px 10px #ee097977;
-      border: 2.1px solid #ff6a00aa;
+      background: linear-gradient(90deg,#ad1212,#ffe18f);
+      box-shadow: 0 2px 10px #ffe18f99;
+      border: 2.1px solid #ffe18faa;
     }
     .delete-btn {
-      background: linear-gradient(90deg, #e96443, #904e95 90%);
+      background: linear-gradient(90deg, #ad1212, #ffe18f 90%);
       color: #fff;
       border: none;
       border-radius: 18px;
@@ -509,38 +504,20 @@ app.get('/', requireLogin, (req, res) => {
       cursor: pointer;
       font-weight: 900;
       letter-spacing: 1.3px;
-      box-shadow: 0 6px 18px #e9644333, 0 2px 7px #e9644333;
+      box-shadow: 0 6px 18px #ad121233, 0 2px 7px #ffe18f33;
       transition: background 0.23s, box-shadow 0.19s, transform .18s;
       display: block;
     }
     .delete-btn:hover {
-      background: linear-gradient(90deg, #904e95 5%, #e96443 100%);
-      box-shadow: 0 8px 24px #e9644344, 0 5px 10px #e9644344;
+      background: linear-gradient(90deg, #ffe18f 5%, #ad1212 100%);
+      box-shadow: 0 8px 24px #ffe18f44, 0 5px 10px #ad121244;
       transform: scale(1.045) translateY(-4px);
       letter-spacing: 2px;
-    }
-    .katana-slash {
-      position: fixed;
-      top: 0;
-      left: 50vw;
-      width: 7px;
-      height: 100vh;
-      background: linear-gradient(180deg,#fff,#ff8b60,#ff3864,#fff);
-      box-shadow: 0 0 40px 15px #fff7, 0 0 180px 35px #ff386422;
-      border-radius: 6px;
-      z-index: 9999;
-      animation: katana-slash-in .54s cubic-bezier(.95,-0.04,.29,1.24);
-      pointer-events: none;
-    }
-    @keyframes katana-slash-in {
-      0%   { opacity: 0; transform: scaleY(0) translateX(0);}
-      40%  { opacity: 1; transform: scaleY(1.08) translateX(-2vw);}
-      80%  { opacity: 1;}
-      100% { opacity: 0; transform: scaleY(1) translateX(8vw);}
+      color: #ad1212;
     }
     td, th {
       color: #fff;
-      text-shadow: 0 2px 16px #fff6, 0 1px 8px #ff3864a8;
+      text-shadow: 0 2px 16px #fff6, 0 1px 8px #ffe18fa8;
       font-weight: 900;
     }
     tr.samurai-row {
@@ -556,18 +533,12 @@ app.get('/', requireLogin, (req, res) => {
       .container{max-width:100vw;}
       th{font-size:1.05em;}
     }
-    ::selection {background: #ee097933;}
+    ::selection {background: #ffe18f33;}
     ::-webkit-scrollbar {width:8px;background:#23243b;border-radius:7px;}
-    ::-webkit-scrollbar-thumb {background:#ee097999;border-radius:7px;}
+    ::-webkit-scrollbar-thumb {background:#ffe18f99;border-radius:7px;}
   </style>
 </head>
 <body>
-  <div class="katana-slash"></div>
-  <script>
-    setTimeout(() => {
-      document.querySelector('.katana-slash')?.remove();
-    }, 850);
-  </script>
   <div class="container">
     <h1>武士 MILANO LOG</h1>
     <table>
@@ -587,7 +558,7 @@ app.get('/', requireLogin, (req, res) => {
           <td style="font-family:monospace;">${escape(log.time)}</td>
           <td><span class="status-cell">${escape(log.status)}</span></td>
           <td>${escape(log.ip)}</td>
-          <td style="color:#21d19f;">${escape(log.userAgent || log.href || '')}</td>
+          <td style="color:#ffe18f;">${escape(log.userAgent || log.href || '')}</td>
         </tr>
       `).join('')
       }
