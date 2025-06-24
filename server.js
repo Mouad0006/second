@@ -5,7 +5,7 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// CORS
+// تفعيل CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -207,7 +207,7 @@ function loginPage(error = "") {
     </div>
   </form>
   <script>
-    // Sakura Petals Animation
+    // Sakura Petals Animation (جمالية فقط)
     const canvas = document.getElementById('sakura-bg');
     const ctx = canvas.getContext('2d');
     let width = window.innerWidth, height = window.innerHeight;
@@ -219,15 +219,12 @@ function loginPage(error = "") {
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-
     const petalImg = (() => {
       let img = new window.Image();
       img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
       return img;
     })();
-
     function random(min, max) { return min + Math.random() * (max - min); }
-
     class Petal {
       constructor() {
         this.x = random(0, width);
@@ -268,10 +265,8 @@ function loginPage(error = "") {
         ctx.restore();
       }
     }
-
     const petals = [];
     for(let i=0;i<20;i++) petals.push(new Petal());
-
     function animate() {
       ctx.clearRect(0, 0, width, height);
       for (let petal of petals) {
@@ -344,7 +339,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// الصفحة الرئيسية - جدول اللوجات
+// الصفحة الرئيسية - جدول اللوجات مع الشق الجانبي
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -391,6 +386,25 @@ app.get('/', requireLogin, (req, res) => {
       flex-direction: column;
       align-items: center;
     }
+    /* الشق الجانبي */
+    .milano-crack {
+      position: fixed;
+      left: 0;
+      top: 5vh;
+      height: 90vh;
+      width: 38px;
+      background: radial-gradient(ellipse at 12px 50%, #fff7, #ffeaa033 60%, #e9644344 100%);
+      border-radius: 0 30px 30px 0;
+      box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344;
+      z-index: 8;
+      animation: crack-glow 2.8s infinite alternate;
+      transition: box-shadow 0.4s;
+    }
+    @keyframes crack-glow {
+      0% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
+      70% { box-shadow: 0 0 55px 36px #ffeaa088, 0 0 270px 80px #e96443bb; }
+      100% { box-shadow: 0 0 38px 22px #ffeaa044, 0 0 200px 55px #e9644344; }
+    }
     .container {
       margin-top: 64px;
       width: 98vw;
@@ -402,6 +416,7 @@ app.get('/', requireLogin, (req, res) => {
       animation: fadeInUp 1.1s cubic-bezier(.72,1.3,.58,1) 1;
       backdrop-filter: blur(2.8px);
       position: relative;
+      z-index: 10;
     }
     @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 {
@@ -463,27 +478,29 @@ app.get('/', requireLogin, (req, res) => {
     tr:nth-child(even) {
       background: #23243b77;
     }
+    /* حركة ظهور اللوجات من الشق */
     .samurai-row {
       opacity: 0;
-      transform: translateX(0);
-      animation-duration: 1.17s;
+      transform: translateX(-90px) scale(0.97);
+      animation-duration: 1.12s;
       animation-fill-mode: forwards;
+      will-change: opacity, transform;
     }
     .samurai-row.left {
-      animation-name: samurai-in-left;
+      animation-name: samurai-in-from-crack;
     }
     .samurai-row.right {
-      animation-name: samurai-in-right;
+      animation-name: samurai-in-from-crack2;
     }
-    @keyframes samurai-in-left {
-      0% {opacity:0;transform:translateX(-80vw);}
-      60%{opacity:.98;}
-      100%{opacity:1;transform:translateX(0);}
+    @keyframes samurai-in-from-crack {
+      0% {opacity:0;transform:translateX(-90px) scale(0.94);}
+      60%{opacity:.99;}
+      100%{opacity:1;transform:translateX(0) scale(1);}
     }
-    @keyframes samurai-in-right {
-      0% {opacity:0;transform:translateX(80vw);}
+    @keyframes samurai-in-from-crack2 {
+      0% {opacity:0;transform:translateX(-110px) scale(0.93);}
       60%{opacity:.98;}
-      100%{opacity:1;transform:translateX(0);}
+      100%{opacity:1;transform:translateX(0) scale(1);}
     }
     .status-cell {
       border-radius: 14px;
@@ -519,25 +536,6 @@ app.get('/', requireLogin, (req, res) => {
       transform: scale(1.045) translateY(-4px);
       letter-spacing: 2px;
     }
-    .katana-slash {
-      position: fixed;
-      top: 0;
-      left: 50vw;
-      width: 7px;
-      height: 100vh;
-      background: linear-gradient(180deg,#fff,#ff8b60,#ff3864,#fff);
-      box-shadow: 0 0 40px 15px #fff7, 0 0 180px 35px #ff386422;
-      border-radius: 6px;
-      z-index: 9999;
-      animation: katana-slash-in .54s cubic-bezier(.95,-0.04,.29,1.24);
-      pointer-events: none;
-    }
-    @keyframes katana-slash-in {
-      0%   { opacity: 0; transform: scaleY(0) translateX(0);}
-      40%  { opacity: 1; transform: scaleY(1.08) translateX(-2vw);}
-      80%  { opacity: 1;}
-      100% { opacity: 0; transform: scaleY(1) translateX(8vw);}
-    }
     td, th {
       color: #fff;
       text-shadow: 0 2px 16px #fff6, 0 1px 8px #ff3864a8;
@@ -562,12 +560,7 @@ app.get('/', requireLogin, (req, res) => {
   </style>
 </head>
 <body>
-  <div class="katana-slash"></div>
-  <script>
-    setTimeout(() => {
-      document.querySelector('.katana-slash')?.remove();
-    }, 850);
-  </script>
+  <div class="milano-crack"></div>
   <div class="container">
     <h1>武士 MILANO LOG</h1>
     <table>
@@ -603,9 +596,10 @@ app.get('/', requireLogin, (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
+      // حركة ظهور اللوجات من الشق
       window.addEventListener("DOMContentLoaded",()=>{
         document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = \`\${0.23 + i*0.11}s\`;
+          row.style.animationDelay = \`\${0.23 + i*0.10}s\`;
         });
       });
     </script>
@@ -614,7 +608,6 @@ app.get('/', requireLogin, (req, res) => {
 </html>
   `);
 });
-
 // Endpoint لجلب أقل ثانية مسجلة
 app.get('/min-second', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
@@ -646,8 +639,6 @@ app.get('/min-second', (req, res) => {
     res.json({ minSecond: null, message: "لا يوجد بيانات بعد" });
   }
 });
-
 app.listen(port, () => {
-  console.log(\`Server is running at http://localhost:${port}\`);
+  console.log('Server is running at http://localhost:' + port);
 });
-
