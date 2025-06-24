@@ -539,6 +539,7 @@ app.get('/', requireLogin, (req, res) => {
   </style>
 </head>
 <body>
+  <canvas id="sakura-bg"></canvas>
   <div class="container">
     <h1>武士 MILANO LOG</h1>
     <table>
@@ -576,9 +577,79 @@ app.get('/', requireLogin, (req, res) => {
       }
       window.addEventListener("DOMContentLoaded",()=>{
         document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = \`\${0.23 + i*0.11}s\`;
+          row.style.animationDelay = `${0.23 + i*0.11}s`;
         });
       });
+
+      // 🌸 سكريبت البتلات
+      const canvas = document.getElementById('sakura-bg');
+      const ctx = canvas.getContext('2d');
+      let width = window.innerWidth, height = window.innerHeight;
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      const petalImg = (() => {
+        let img = new window.Image();
+        img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
+        return img;
+      })();
+      function random(min, max) { return min + Math.random() * (max - min); }
+      class Petal {
+        constructor() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.5);
+          this.amp = random(8, 38);
+          this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.015, 0.015);
+          this.opacity = random(0.6, 1);
+        }
+        move() {
+          this.y += this.speed;
+          this.x += Math.sin(this.y / 30 + this.phase) * this.swing;
+          this.angle += this.spin;
+          if (this.y > height + 30) this.reset();
+        }
+        reset() {
+          this.x = random(0, width);
+          this.y = random(-40, -10);
+          this.r = random(12, 25);
+          this.speed = random(0.5, 1.5);
+          this.amp = random(8, 38);
+          this.phase = random(0, Math.PI * 2);
+          this.swing = random(0.5, 1.2);
+          this.angle = random(0, 360);
+          this.spin = random(-0.015, 0.015);
+          this.opacity = random(0.6, 1);
+        }
+        draw(ctx) {
+          ctx.save();
+          ctx.globalAlpha = this.opacity;
+          ctx.translate(this.x, this.y);
+          ctx.rotate(this.angle);
+          ctx.drawImage(petalImg, -this.r/2, -this.r/2, this.r, this.r);
+          ctx.restore();
+        }
+      }
+      const petals = [];
+      for(let i=0;i<22;i++) petals.push(new Petal());
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+        for (let petal of petals) {
+          petal.move();
+          petal.draw(ctx);
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
     </script>
   </div>
 </body>
