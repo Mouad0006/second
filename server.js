@@ -561,7 +561,7 @@ app.get('/', requireLogin, (req, res) => {
           <td>${escape(log.ip)}</td>
           <td style="color:#ffe18f;">${escape(log.userAgent || log.href || '')}</td>
         </tr>
-      `).join('')
+        `).join('')
       }
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
