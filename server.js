@@ -5,7 +5,7 @@ const session = require('express-session');
 const app = express();
 const port = process.env.PORT || 4000;
 
-// تفعيل CORS
+// CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -16,10 +16,9 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// إعدادات الجلسة
+// جلسة تسجيل الدخول
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
-// بيانات تسجيل الدخول
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
@@ -181,6 +180,7 @@ function loginPage(error = "") {
       padding: 8px 0 4px 0;
       border-radius: 7px;
       box-shadow: 0 2px 8px #ad121221;
+      display: ${error ? 'block' : 'none'};
     }
     @media (max-width: 600px) {
       .samurai-glass { padding: 20px 3vw; min-width: 93vw;}
@@ -193,8 +193,7 @@ function loginPage(error = "") {
   <form class="samurai-glass" method="POST" autocomplete="off">
     <div class="samurai-title">武士 MILANO LOGIN</div>
     <div class="samurai-divider"></div>
-    <!-- Optional error message -->
-    <!-- <div class="error-msg">Invalid username or password!</div> -->
+    <div class="error-msg">${error ? error : ''}</div>
     <div class="login-form">
       <div class="input-box">
         <input name="username" type="text" required placeholder="Username" autocomplete="username">
@@ -208,7 +207,7 @@ function loginPage(error = "") {
     </div>
   </form>
   <script>
-    // --- Sakura Petals Animation ---
+    // Sakura Petals Animation
     const canvas = document.getElementById('sakura-bg');
     const ctx = canvas.getContext('2d');
     let width = window.innerWidth, height = window.innerHeight;
@@ -222,7 +221,6 @@ function loginPage(error = "") {
     resizeCanvas();
 
     const petalImg = (() => {
-      // Petal SVG as image (base64 for speed)
       let img = new window.Image();
       img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
       return img;
@@ -286,17 +284,27 @@ function loginPage(error = "") {
   </script>
 </body>
 </html>
-
   `;
 }
 
-// حماية صفحة الجدول فقط
+// حماية الصفحة
 function requireLogin(req, res, next) {
   if (req.session && req.session.loggedIn) return next();
   res.send(loginPage());
 }
 
-// ======== LOG ROUTE - مفتوح للكل ========
+// Route تسجيل الدخول
+app.post('/', (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === AUTH_USER && password === AUTH_PASS) {
+    req.session.loggedIn = true;
+    res.redirect('/');
+  } else {
+    res.send(loginPage("Invalid username or password!"));
+  }
+});
+
+// Route لوجين CSV
 app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -329,7 +337,14 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// الصفحة العصرية العجيبة!
+// Route حذف كل اللوجات
+app.post('/delete-all', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
+  res.json({ status: 'all_deleted' });
+});
+
+// الصفحة الرئيسية - جدول اللوجات
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -351,13 +366,12 @@ app.get('/', requireLogin, (req, res) => {
     }).filter(log => log.status == 200).reverse();
   }
 
-  function statusColor(status) {
-    if (status == 200) return 'background:linear-gradient(90deg,#21d19f,#1fd1f9);color:#fff;font-weight:bold;box-shadow:0 2px 10px #21d19f99;';
-    if (status == 302) return 'background:linear-gradient(90deg,#fbbf24,#facc15);color:#222;font-weight:bold;';
-    if (!status) return 'background:#eee;color:#888;';
-    return 'background:linear-gradient(90deg,#e74c3c,#dc2626);color:#fff;font-weight:bold;';
+  function escape(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
-app.get("/", (req, res) => {
+
   res.send(`
   <!DOCTYPE html>
 <html lang="en">
@@ -505,7 +519,6 @@ app.get("/", (req, res) => {
       transform: scale(1.045) translateY(-4px);
       letter-spacing: 2px;
     }
-    /* سيف الساموراي */
     .katana-slash {
       position: fixed;
       top: 0;
@@ -525,7 +538,6 @@ app.get("/", (req, res) => {
       80%  { opacity: 1;}
       100% { opacity: 0; transform: scaleY(1) translateX(8vw);}
     }
-    /* نص براق */
     td, th {
       color: #fff;
       text-shadow: 0 2px 16px #fff6, 0 1px 8px #ff3864a8;
@@ -566,22 +578,19 @@ app.get("/", (req, res) => {
         <th>IP</th>
         <th>Client</th>
       </tr>
-      <!-- مثال على صفوف ديناميكية (عدلها في السيرفر ليخرج مثلها) -->
-      <tr class="samurai-row left" style="animation-delay:0.23s">
-        <td><b>2025-06-22</b></td>
-        <td style="font-family:monospace;">12:34:11</td>
-        <td><span class="status-cell">200</span></td>
-        <td>105.231.XX.XX</td>
-        <td style="color:#21d19f;">FIRST CLIENT</td>
-      </tr>
-      <tr class="samurai-row right" style="animation-delay:0.34s">
-        <td><b>2025-06-22</b></td>
-        <td style="font-family:monospace;">12:34:44</td>
-        <td><span class="status-cell">200</span></td>
-        <td>197.143.XX.XX</td>
-        <td style="color:#21d19f;">SECOND CLIENT</td>
-      </tr>
-      <!-- ... أكمل باقي الصفوف تلقائيا من السيرفر -->
+      ${
+        logs.length === 0
+          ? `<tr class="samurai-row left"><td colspan="5" style="color:#ffa;">No data found yet.</td></tr>`
+          : logs.map((log, i) => `
+        <tr class="samurai-row ${i % 2 === 0 ? 'left' : 'right'}">
+          <td><b>${escape(log.day)}</b></td>
+          <td style="font-family:monospace;">${escape(log.time)}</td>
+          <td><span class="status-cell">${escape(log.status)}</span></td>
+          <td>${escape(log.ip)}</td>
+          <td style="color:#21d19f;">${escape(log.userAgent || log.href || '')}</td>
+        </tr>
+      `).join('')
+      }
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
     <script>
@@ -594,10 +603,9 @@ app.get("/", (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
-      // اجعل صفوف الجدول تظهر بتسلسل (لو الصفوف ديناميكية من السيرفر)
       window.addEventListener("DOMContentLoaded",()=>{
         document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = `${0.23 + i*0.11}s`;
+          row.style.animationDelay = \`\${0.23 + i*0.11}s\`;
         });
       });
     </script>
@@ -607,23 +615,6 @@ app.get("/", (req, res) => {
   `);
 });
 
-// صفحة الحذف
-app.post('/delete-all', (req, res) => {
-  const pathLog = path.join(__dirname, 'applicant_log.csv');
-  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
-  res.json({ status: 'all_deleted' });
-});
-
-// صفحة POST تسجيل الدخول
-app.post('/', (req, res) => {
-  const { username, password } = req.body || {};
-  if (username === AUTH_USER && password === AUTH_PASS) {
-    req.session.loggedIn = true;
-    res.redirect('/');
-  } else {
-    res.send(loginPage("Invalid username or password!"));
-  }
-});
 // Endpoint لجلب أقل ثانية مسجلة
 app.get('/min-second', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
@@ -657,6 +648,5 @@ app.get('/min-second', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(\`Server is running at http://localhost:${port}\`);
 });
-
