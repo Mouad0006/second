@@ -307,7 +307,7 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Applicant Log | Wano Night</title>
+  <title>MILANO | Wano Night</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -443,7 +443,7 @@ app.get('/', requireLogin, (req, res) => {
   <div class="moon-bg"></div>
   <canvas id="sakura"></canvas>
   <div class="container">
-    <h1>Wano Full Moon — Booking Log</h1>
+    <h1>WANO LOG — MILANO</h1>
     <table>
       <tr>
         <th>Time (UTC)</th>
