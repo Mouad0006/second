@@ -357,7 +357,7 @@ app.get('/', requireLogin, (req, res) => {
     if (!status) return 'background:#eee;color:#888;';
     return 'background:linear-gradient(90deg,#e74c3c,#dc2626);color:#fff;font-weight:bold;';
   }
-
+app.get("/", (req, res) => {
   res.send(`
   <!DOCTYPE html>
 <html lang="en">
