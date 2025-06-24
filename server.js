@@ -40,14 +40,6 @@ function loginPage(error = "") {
       font-family: 'Noto Sans JP', 'Montserrat', 'Segoe UI', Arial, sans-serif;
       overflow-x: hidden;
     }
-    #sakura-bg {
-      position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.33;
-    }
     .samurai-glass {
       margin: 95px auto 0 auto;
       max-width: 390px;
@@ -189,7 +181,6 @@ function loginPage(error = "") {
   </style>
 </head>
 <body>
-  <canvas id="sakura-bg"></canvas>
   <form class="samurai-glass" method="POST" autocomplete="off">
     <div class="samurai-title">武士 MILANO LOGIN</div>
     <div class="samurai-divider"></div>
@@ -206,77 +197,6 @@ function loginPage(error = "") {
       <button class="login-btn" type="submit">Sign In</button>
     </div>
   </form>
-  <script>
-    // Sakura Petals Animation (جمالية فقط)
-    const canvas = document.getElementById('sakura-bg');
-    const ctx = canvas.getContext('2d');
-    let width = window.innerWidth, height = window.innerHeight;
-    function resizeCanvas() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    const petalImg = (() => {
-      let img = new window.Image();
-      img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
-      return img;
-    })();
-    function random(min, max) { return min + Math.random() * (max - min); }
-    class Petal {
-      constructor() {
-        this.x = random(0, width);
-        this.y = random(-40, -10);
-        this.r = random(12, 25);
-        this.speed = random(0.5, 1.5);
-        this.amp = random(8, 38);
-        this.phase = random(0, Math.PI * 2);
-        this.swing = random(0.5, 1.2);
-        this.angle = random(0, 360);
-        this.spin = random(-0.015, 0.015);
-        this.opacity = random(0.6, 1);
-      }
-      move() {
-        this.y += this.speed;
-        this.x += Math.sin(this.y / 30 + this.phase) * this.swing;
-        this.angle += this.spin;
-        if (this.y > height + 30) this.reset();
-      }
-      reset() {
-        this.x = random(0, width);
-        this.y = random(-40, -10);
-        this.r = random(12, 25);
-        this.speed = random(0.5, 1.5);
-        this.amp = random(8, 38);
-        this.phase = random(0, Math.PI * 2);
-        this.swing = random(0.5, 1.2);
-        this.angle = random(0, 360);
-        this.spin = random(-0.015, 0.015);
-        this.opacity = random(0.6, 1);
-      }
-      draw(ctx) {
-        ctx.save();
-        ctx.globalAlpha = this.opacity;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-        ctx.drawImage(petalImg, -this.r/2, -this.r/2, this.r, this.r);
-        ctx.restore();
-      }
-    }
-    const petals = [];
-    for(let i=0;i<20;i++) petals.push(new Petal());
-    function animate() {
-      ctx.clearRect(0, 0, width, height);
-      for (let petal of petals) {
-        petal.move();
-        petal.draw(ctx);
-      }
-      requestAnimationFrame(animate);
-    }
-    animate();
-  </script>
 </body>
 </html>
   `;
@@ -339,7 +259,7 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// الصفحة الرئيسية - جدول اللوجات مع الشق الجانبي
+// الصفحة الرئيسية - جدول اللوجات مع لمسات ساموراي
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
@@ -372,19 +292,54 @@ app.get('/', requireLogin, (req, res) => {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SAMURAI LOG - MILANO</title>
+  <title>🗡️ 武士 MILANO LOG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&family=Zen+Kaku+Gothic+New:wght@900&display=swap" rel="stylesheet">
   <style>
     body {
-      background: linear-gradient(120deg, #141e30 0%, #243b55 100%);
+      background: linear-gradient(120deg, #141416 0%, #231a24 100%);
       min-height: 100vh;
-      font-family: 'Cairo', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Cairo', 'Zen Kaku Gothic New', Arial, sans-serif;
       margin: 0;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+    .smoke-bg {
+      pointer-events: none;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      opacity: 0.17;
+      background: url('https://svgshare.com/i/18sN.svg') repeat-x 0 30%;
+      background-size: 700px;
+      animation: smoke-move 23s linear infinite;
+    }
+    @keyframes smoke-move { 
+      0% { background-position-x: 0;}
+      100% { background-position-x: 700px;}
+    }
+    /* Katana Slash */
+    .katana-slash {
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99;
+      pointer-events: none;
+      background: linear-gradient(70deg, #fff 2%, #fff3 10%, #fa0 80%, #fff0 90%);
+      box-shadow: 0 0 120px 35px #fff9, 0 0 250px 70px #fa0884aa;
+      opacity: 1;
+      transform: scaleY(0.98) rotate(-4deg);
+      animation: katana-anim 0.99s cubic-bezier(.71,1.6,.48,.93) 1;
+    }
+    @keyframes katana-anim {
+      0% { opacity:0; transform: scaleY(0.14) rotate(-44deg);}
+      40%{ opacity:1; transform: scaleY(1.08) rotate(-4deg);}
+      80% { opacity:.7;}
+      100%{ opacity:0; transform: scaleY(1) rotate(-4deg);}
     }
     /* الشق الجانبي */
     .milano-crack {
@@ -409,41 +364,45 @@ app.get('/', requireLogin, (req, res) => {
       margin-top: 64px;
       width: 98vw;
       max-width: 1150px;
-      background: rgba(31,34,57,0.98);
+      background: rgba(31,34,57,0.97);
       border-radius: 32px;
-      box-shadow: 0 20px 60px #0005, 0 2px 16px #00eaff50, 0 0px 2px 1px #b4b6fa77;
-      padding: 48px 18px 38px 18px;
-      animation: fadeInUp 1.1s cubic-bezier(.72,1.3,.58,1) 1;
-      backdrop-filter: blur(2.8px);
+      box-shadow: 0 20px 60px #0008, 0 2px 16px #ffe45a44, 0 0px 2px 1px #b4b6fa77;
+      padding: 54px 18px 38px 18px;
+      animation: fadeInUp 1.18s cubic-bezier(.82,1.5,.68,1) 1;
+      backdrop-filter: blur(3.2px);
       position: relative;
       z-index: 10;
     }
-    @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(70px) scale(.91);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 {
       text-align: center;
-      font-size: 2.32rem;
+      font-size: 2.34rem;
       color: #fff;
-      letter-spacing: 2.2px;
+      letter-spacing: 2.4px;
       font-weight: 900;
       margin-bottom: 44px;
-      background: linear-gradient(90deg, #e96443 20%, #904e95 70%);
+      background: linear-gradient(90deg, #ffcc43 14%, #c41f1f 90%);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 7px 26px #c41f1f45, 0 1px 10px #1fd1f933;
+      text-shadow: 0 11px 36px #ad121265, 0 1px 14px #ffe45a90;
       position: relative;
+      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
+      user-select: none;
     }
+    h1 .icon { font-size: 2.6rem; margin-right: 8px; vertical-align: -3px;}
+    h1 .jp { font-size: 1.13em; letter-spacing: 3.2px;}
     h1::after {
       content: '';
       display: block;
       margin: 0 auto;
       margin-top: 17px;
       height: 4px;
-      width: 76px;
+      width: 96px;
       border-radius: 6px;
-      background: linear-gradient(90deg, #e96443 5%, #904e95 100%);
-      opacity: 0.67;
-      box-shadow: 0 2px 8px #b4b6fa33;
+      background: linear-gradient(90deg, #ffcc43 5%, #c41f1f 100%);
+      opacity: 0.63;
+      box-shadow: 0 2px 12px #ffe45a33;
       animation: shine 2.7s linear infinite;
     }
     @keyframes shine {0% {opacity:.25;}50% {opacity:1;}100% {opacity:.25;}}
@@ -452,55 +411,59 @@ app.get('/', requireLogin, (req, res) => {
       border-collapse: separate;
       border-spacing: 0;
       margin-top: 18px;
-      background: rgba(44, 49, 80, 0.99);
-      box-shadow: 0 6px 30px #e9644333;
+      background: rgba(44, 49, 80, 0.97);
+      box-shadow: 0 8px 36px #c41f1f19, 0 6px 28px #ffcc4317;
       border-radius: 18px;
       overflow: hidden;
-      font-size: 1.13em;
+      font-size: 1.16em;
       animation: fadeTable 1.5s;
     }
     @keyframes fadeTable { from {opacity:0;transform:scale(.97);} to {opacity:1;transform:scale(1);}}
     th, td {padding:17px 7px;text-align:center;border:none;}
     th {
-      background: linear-gradient(90deg, #222a42 60%, #e9644322 100%);
-      color: #e96443;
+      background: linear-gradient(90deg, #231a24 60%, #c41f1f33 100%);
+      color: #ffcc43;
       font-weight: 900;
       font-size: 1.14em;
       letter-spacing: 1.15px;
-      border-bottom: 2.7px solid #e9644344;
+      border-bottom: 2.7px solid #c41f1f33;
       user-select: none;
       transition: background .22s;
       position: relative;
+      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
+      text-shadow: 0 1px 9px #c41f1f55, 0 1px 3px #ffe45a44;
     }
     tr {
       transition: background 0.22s;
     }
     tr:nth-child(even) {
-      background: #23243b77;
+      background: #23243b88;
     }
-    /* حركة ظهور اللوجات من الشق */
+    /* samurai rows تظهر بضربة سيف */
     .samurai-row {
       opacity: 0;
-      transform: translateX(-90px) scale(0.97);
-      animation-duration: 1.12s;
+      transform: translateX(-130px) scale(0.96) skewX(-17deg);
+      animation-duration: 1.25s;
       animation-fill-mode: forwards;
       will-change: opacity, transform;
+      box-shadow: 0 4px 22px #c41f1f21;
+      border-left: 7px solid #ffcc434a;
     }
     .samurai-row.left {
-      animation-name: samurai-in-from-crack;
+      animation-name: samurai-in-sword;
     }
     .samurai-row.right {
-      animation-name: samurai-in-from-crack2;
+      animation-name: samurai-in-sword2;
     }
-    @keyframes samurai-in-from-crack {
-      0% {opacity:0;transform:translateX(-90px) scale(0.94);}
-      60%{opacity:.99;}
-      100%{opacity:1;transform:translateX(0) scale(1);}
+    @keyframes samurai-in-sword {
+      0% {opacity:0;transform:translateX(-160px) scale(0.89) skewX(-23deg);}
+      50%{opacity:.99;}
+      100%{opacity:1;transform:translateX(0) scale(1) skewX(0);}
     }
-    @keyframes samurai-in-from-crack2 {
-      0% {opacity:0;transform:translateX(-110px) scale(0.93);}
-      60%{opacity:.98;}
-      100%{opacity:1;transform:translateX(0) scale(1);}
+    @keyframes samurai-in-sword2 {
+      0% {opacity:0;transform:translateX(-120px) scale(0.96) skewX(-11deg);}
+      55%{opacity:.98;}
+      100%{opacity:1;transform:translateX(0) scale(1) skewX(0);}
     }
     .status-cell {
       border-radius: 14px;
@@ -511,38 +474,42 @@ app.get('/', requireLogin, (req, res) => {
       font-weight: 900;
       letter-spacing: 1.13px;
       color: #fff;
-      background: linear-gradient(90deg,#ee0979,#ff6a00);
-      box-shadow: 0 2px 10px #ee097977;
-      border: 2.1px solid #ff6a00aa;
+      background: linear-gradient(90deg,#c41f1f,#ffcc43);
+      box-shadow: 0 2px 10px #c41f1f55;
+      border: 2.1px solid #ffcc438a;
     }
     .delete-btn {
-      background: linear-gradient(90deg, #e96443, #904e95 90%);
+      background: linear-gradient(90deg, #c41f1f, #ffcc43 90%);
       color: #fff;
       border: none;
-      border-radius: 18px;
-      padding: 18px 70px;
+      border-radius: 50px;
+      padding: 16px 65px;
       font-size: 1.21rem;
       margin: 33px auto 0 auto;
       cursor: pointer;
       font-weight: 900;
       letter-spacing: 1.3px;
-      box-shadow: 0 6px 18px #e9644333, 0 2px 7px #e9644333;
+      box-shadow: 0 6px 18px #c41f1f33, 0 2px 7px #ffcc4344;
       transition: background 0.23s, box-shadow 0.19s, transform .18s;
       display: block;
+      font-family: 'Zen Kaku Gothic New', 'Cairo', Arial, sans-serif;
+      border-bottom: 4px solid #c41f1f;
+      outline: none;
     }
     .delete-btn:hover {
-      background: linear-gradient(90deg, #904e95 5%, #e96443 100%);
-      box-shadow: 0 8px 24px #e9644344, 0 5px 10px #e9644344;
-      transform: scale(1.045) translateY(-4px);
+      background: linear-gradient(90deg, #ffcc43 5%, #c41f1f 100%);
+      box-shadow: 0 8px 24px #c41f1f44, 0 5px 10px #ffcc4344;
+      transform: scale(1.06) translateY(-4px) rotate(-2deg);
       letter-spacing: 2px;
+      color: #c41f1f;
+      border-bottom: 4px solid #ffcc43;
     }
     td, th {
       color: #fff;
-      text-shadow: 0 2px 16px #fff6, 0 1px 8px #ff3864a8;
       font-weight: 900;
     }
     tr.samurai-row {
-      background: rgba(44, 49, 80, 0.89);
+      background: rgba(44, 49, 80, 0.93);
       border-radius: 18px;
     }
     @media (max-width: 900px) {
@@ -554,15 +521,17 @@ app.get('/', requireLogin, (req, res) => {
       .container{max-width:100vw;}
       th{font-size:1.05em;}
     }
-    ::selection {background: #ee097933;}
+    ::selection {background: #ffcc4333;}
     ::-webkit-scrollbar {width:8px;background:#23243b;border-radius:7px;}
-    ::-webkit-scrollbar-thumb {background:#ee097999;border-radius:7px;}
+    ::-webkit-scrollbar-thumb {background:#c41f1f99;border-radius:7px;}
   </style>
 </head>
 <body>
+  <div class="smoke-bg"></div>
+  <div class="katana-slash"></div>
   <div class="milano-crack"></div>
   <div class="container">
-    <h1>武士 MILANO LOG</h1>
+    <h1><span class="icon">🗡️</span><span class="jp">武士</span> MILANO LOG</h1>
     <table>
       <tr>
         <th>Date</th>
@@ -580,12 +549,12 @@ app.get('/', requireLogin, (req, res) => {
           <td style="font-family:monospace;">${escape(log.time)}</td>
           <td><span class="status-cell">${escape(log.status)}</span></td>
           <td>${escape(log.ip)}</td>
-          <td style="color:#21d19f;">${escape(log.userAgent || log.href || '')}</td>
+          <td style="color:#ffcc43;">${escape(log.userAgent || log.href || '')}</td>
         </tr>
       `).join('')
       }
     </table>
-    <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
+    <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     <script>
       function deleteAllLogs(e) {
         e.preventDefault();
@@ -596,11 +565,12 @@ app.get('/', requireLogin, (req, res) => {
             if (json.status === 'all_deleted') location.reload();
           });
       }
-      // حركة ظهور اللوجات من الشق
+      // حركة samurai rows: ضربة سيف مع الشق
       window.addEventListener("DOMContentLoaded",()=>{
         document.querySelectorAll('.samurai-row').forEach((row,i)=>{
-          row.style.animationDelay = \`\${0.23 + i*0.10}s\`;
+          row.style.animationDelay = \`\${0.42 + i*0.10}s\`;
         });
+        setTimeout(()=>document.querySelector('.katana-slash')?.remove(), 1300);
       });
     </script>
   </div>
@@ -608,37 +578,7 @@ app.get('/', requireLogin, (req, res) => {
 </html>
   `);
 });
-// Endpoint لجلب أقل ثانية مسجلة
-app.get('/min-second', (req, res) => {
-  const pathLog = path.join(__dirname, 'applicant_log.csv');
-  let minSecond = null;
-  if (fs.existsSync(pathLog)) {
-    const data = fs.readFileSync(pathLog, 'utf-8').trim().split('\n');
-    let secondsArr = [];
-    for (const line of data) {
-      const [date, ip, infoRaw] = line.split(',', 3);
-      let info = {};
-      try { info = JSON.parse(infoRaw); } catch {}
-      let second = null;
-      if (info.status == 200 && info.isoTime) {
-        try {
-          second = new Date(info.isoTime).getSeconds();
-        } catch {}
-      } else if (info.status == 200 && date) {
-        try {
-          second = new Date(date).getSeconds();
-        } catch {}
-      }
-      if (second !== null && !isNaN(second)) secondsArr.push(second);
-    }
-    if (secondsArr.length > 0) minSecond = Math.min(...secondsArr);
-  }
-  if (minSecond !== null) {
-    res.json({ minSecond });
-  } else {
-    res.json({ minSecond: null, message: "لا يوجد بيانات بعد" });
-  }
-});
+
 app.listen(port, () => {
   console.log('Server is running at http://localhost:' + port);
 });
