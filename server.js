@@ -13,15 +13,20 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.sendStatus(200);
   next();
 });
+// إعدادات الجلسة
+app.use(session({
+  secret: 'milanoSecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { sameSite: 'lax' }
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session
-app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
-
-// Auth data
-const AUTH_USER = "Milano";
-const AUTH_PASS = "Mouad2006@";
+// بيانات الدخول
+const AUTH_USER = 'Milano';
+const AUTH_PASS = 'Mouad2006@';
 
 // Login page with sakura petals (keep as you like)
 function loginPage(error = "") {
@@ -279,7 +284,10 @@ app.post('/log', (req, res) => {
   }
   res.json({ ok: true });
 });
-
+function requireLogin(req, res, next) {
+  if (req.session && req.session.loggedIn) return next();
+  res.send(loginPage());
+}
 // صفحة الجدول (بستايل وانو ليل + قمر وبتلات ساكورا)
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
@@ -524,26 +532,32 @@ app.get('/', requireLogin, (req, res) => {
 </html>
   `);
 });
+// صفحة تسجيل الدخول
+app.post('/', (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === AUTH_USER && password === AUTH_PASS) {
+    req.session.loggedIn = true;
+    return res.redirect('/');
+  }
+  res.send(loginPage("Invalid username or password!"));
+});
 
-// حذف كل شيء
+// تسجيل الطلبات
+app.post('/log', (req, res) => {
+  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const line = `${new Date().toISOString()},${ip},${JSON.stringify(req.body)}\n`;
+  fs.appendFileSync(pathLog, line);
+  res.json({ ok: true });
+});
+
+// حذف الكل
 app.post('/delete-all', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
   res.json({ status: 'all_deleted' });
 });
 
-// POST login
-app.post('/', (req, res) => {
-  const { username, password } = req.body || {};
-  if (username === AUTH_USER && password === AUTH_PASS) {
-    req.session.loggedIn = true;
-    res.redirect('/');
-  } else {
-    res.send(loginPage("Invalid username or password!"));
-  }
-});
-
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
-
