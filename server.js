@@ -259,47 +259,48 @@ function loginPage(error = "") {
   `;
 }
 
-// Require login every time
 function requireLogin(req, res, next) {
-  req.session.loggedIn = false;
   if (req.session && req.session.loggedIn) return next();
   res.send(loginPage());
 }
 
-// استقبال الطلبات وتسجيلها
-const lastLogByIP = {}; // ip: { time: timestamp }
+app.post('/', (req, res) => {
+  const { username, password } = req.body || {};
+  if (username === AUTH_USER && password === AUTH_PASS) {
+    req.session.loggedIn = true;
+    return res.redirect('/');
+  }
+  res.send(loginPage("Invalid username or password!"));
+});
+
 app.post('/log', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  const { status } = req.body || {};
-  const now = Date.now();
-  if (status == 200) {
-    if (lastLogByIP[ip] && now - lastLogByIP[ip] < 5 * 60 * 1000) {
-      // Ignore repeated logs in 5 minutes for same IP
-      return res.json({ skip: true });
-    }
-    lastLogByIP[ip] = now;
-    const line = `${new Date().toISOString()},${ip},${JSON.stringify(req.body)}\n`;
-    fs.appendFileSync(pathLog, line);
-  }
+  const line = `${new Date().toISOString()},${ip},${JSON.stringify(req.body)}\n`;
+  fs.appendFileSync(pathLog, line);
   res.json({ ok: true });
 });
-function requireLogin(req, res, next) {
-  if (req.session && req.session.loggedIn) return next();
-  res.send(loginPage());
-}
-// صفحة الجدول (بستايل وانو ليل + قمر وبتلات ساكورا)
+
 app.get('/', requireLogin, (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
   if (fs.existsSync(pathLog)) {
-    logs = fs.readFileSync(pathLog, 'utf-8')
-      .trim().split('\n').map(line => {
-        const [date, ip, infoRaw] = line.split(',', 3);
-        let info = {};
-        try { info = JSON.parse(infoRaw); } catch {}
-        return { date, ip, ...info };
-      }).reverse();
+    logs = fs.readFileSync(pathLog, 'utf-8').trim().split('\n').map(line => {
+      const [isoDate, ip, infoRaw] = line.split(',', 3);
+      let info = {};
+      try { info = JSON.parse(infoRaw); } catch {}
+      const dateObj = new Date(isoDate);
+
+      return {
+        date: dateObj.toISOString().split('T')[0],
+        time: dateObj.toISOString().split('T')[1].split('.')[0],
+        ip,
+        localTime: info.localTime || '',
+        status: info.status || '-',
+        userAgent: info.userAgent || '',
+        href: info.href || ''
+      };
+    }).reverse();
   }
 
   res.send(`
