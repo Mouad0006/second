@@ -16,13 +16,12 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session
 app.use(session({ secret: 'milanoSecret', resave: false, saveUninitialized: true }));
 
 const AUTH_USER = "Milano";
 const AUTH_PASS = "Mouad2006@";
 
-// Sakura petals SVG (base64)
+// Sakura SVG Base64
 const sakuraSvg = 'data:image/svg+xml;base64,' + Buffer.from(`<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>`).toString('base64');
 
 // Login Page HTML
@@ -181,15 +180,14 @@ function loginPage(error = "") {
 </html>
   `;
 }
-
-// تسجيل الدخول في كل دخول (مسح الجلسة مع كل دخول جديد)
+// Require Login في كل مرة
 function requireLogin(req, res, next) {
   if (req.session && req.session.loggedIn) return next();
-  req.session.loggedIn = false; // Always require login
+  req.session.loggedIn = false;
   res.send(loginPage());
 }
 
-// استلام السجلات من CALENDRIA (فقط status == 200 كل 5 دقائق لنفس IP)
+// لا تسجل إلا طلبات status=200 كل 5 دقائق لكل IP
 const recentLogsByIp = {};
 app.post('/log', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -202,7 +200,17 @@ app.post('/log', (req, res) => {
   }
   recentLogsByIp[ip] = now;
 
-  const logLine = `${req.body.isoTime || ''},${ip},${req.body.localTime || ''},${req.body.status || ''},${req.body.userAgent || ''}\n`;
+  // استخراج date و time بشكل منفصل
+  let date = '', time = '';
+  if (req.body.isoTime) {
+    const d = new Date(req.body.isoTime);
+    if (!isNaN(d)) {
+      date = d.toLocaleDateString('en-CA'); // yyyy-mm-dd
+      time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+  }
+  // اكتب السطر بالترتيب الصحيح
+  const logLine = `${date},${time},${ip},${status},${req.body.userAgent || ''}\n`;
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   fs.appendFileSync(pathLog, logLine);
   res.json({ ok: true });
@@ -210,20 +218,17 @@ app.post('/log', (req, res) => {
 
 // صفحة الجدول
 app.get('/', requireLogin, (req, res) => {
-  req.session.loggedIn = false; // force login on every refresh
+  req.session.loggedIn = false;
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   let logs = [];
   if (fs.existsSync(pathLog)) {
     logs = fs.readFileSync(pathLog, 'utf-8').trim().split('\n').filter(Boolean).map(line => {
-      const [iso, ip, localTime, status, userAgent] = line.split(',', 5);
-      const d = new Date(iso);
-      const day = isNaN(d) ? '' : d.toLocaleDateString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
-      const time = isNaN(d) ? (localTime || '') : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      return { day, time, status, ip, userAgent };
+      const [date, time, ip, status, userAgent] = line.split(',', 5);
+      return { date, time, ip, status, userAgent };
     });
   }
 
-  // HTML الجدول مع الساكورا
+  // واجهة الجدول العصرية مع بتلات الساكورا
   res.send(`
 <!DOCTYPE html>
 <html lang="en">
@@ -271,8 +276,8 @@ app.get('/', requireLogin, (req, res) => {
       <tr>
         <th>Date</th>
         <th>Time</th>
-        <th>Status</th>
         <th>IP</th>
+        <th>Status</th>
         <th>User Agent</th>
       </tr>
       ${
@@ -280,10 +285,10 @@ app.get('/', requireLogin, (req, res) => {
         ? `<tr class="samurai-row left"><td colspan="5" style="color:#ffa;">No data found yet.</td></tr>`
         : logs.map((log, i) => `
         <tr class="samurai-row ${i % 2 === 0 ? 'left' : 'right'}">
-          <td><b>${log.day}</b></td>
+          <td><b>${log.date}</b></td>
           <td style="font-family:monospace;">${log.time}</td>
-          <td><span class="status-cell">${log.status}</span></td>
           <td>${log.ip}</td>
+          <td><span class="status-cell">${log.status}</span></td>
           <td style="color:#ffe18f;">${log.userAgent || ''}</td>
         </tr>
       `).join('')
@@ -381,14 +386,13 @@ app.get('/', requireLogin, (req, res) => {
   `);
 });
 
-// حذف كل السجلات
+// حذف السجلات
 app.post('/delete-all', (req, res) => {
   const pathLog = path.join(__dirname, 'applicant_log.csv');
   if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
   res.json({ status: 'all_deleted' });
 });
 
-// تسجيل الدخول
 app.post('/', (req, res) => {
   const { username, password } = req.body || {};
   if (username === AUTH_USER && password === AUTH_PASS) {
