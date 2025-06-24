@@ -368,35 +368,43 @@ app.get('/', requireLogin, (req, res) => {
   }
 
   res.send(`
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SAMURAI LOG - MILANO</title>
+  <title>武士 MILANO LOG</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Noto+Sans+JP:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(120deg, #141e30 0%, #243b55 100%);
+    html, body {
+      height: 100%;
       min-height: 100vh;
-      font-family: 'Noto Sans JP', 'Montserrat', 'Segoe UI', Arial, sans-serif;
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background: #18192e;
       overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    }
+    #sakura-bg {
+      position: fixed;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.34;
     }
     .container {
-      margin-top: 64px;
+      position: relative;
+      z-index: 2;
+      margin: 60px auto 0 auto;
       width: 98vw;
-      max-width: 1150px;
-      background: rgba(31,34,57,0.98);
+      max-width: 1100px;
+      background: rgba(34,38,59,0.96);
       border-radius: 32px;
-      box-shadow: 0 20px 60px #0005, 0 2px 16px #00eaff50, 0 0px 2px 1px #b4b6fa77;
+      box-shadow: 0 12px 48px #ad121255, 0 2px 16px #ffe18f55, 0 0px 2px 1px #ffe18f77;
       padding: 48px 18px 38px 18px;
       animation: fadeInUp 1.1s cubic-bezier(.72,1.3,.58,1) 1;
       backdrop-filter: blur(2.8px);
-      position: relative;
     }
     @keyframes fadeInUp { from { opacity:0; transform:translateY(60px) scale(.93);} to {opacity:1;transform:translateY(0) scale(1);}}
     h1 {
@@ -452,24 +460,16 @@ app.get('/', requireLogin, (req, res) => {
       transition: background .22s;
       position: relative;
     }
-    tr {
-      transition: background 0.22s;
-    }
-    tr:nth-child(even) {
-      background: #23243b77;
-    }
+    tr { transition: background 0.22s; }
+    tr:nth-child(even) { background: #23243b77; }
     .samurai-row {
       opacity: 0;
       transform: translateX(0);
       animation-duration: 1.17s;
       animation-fill-mode: forwards;
     }
-    .samurai-row.left {
-      animation-name: samurai-in-left;
-    }
-    .samurai-row.right {
-      animation-name: samurai-in-right;
-    }
+    .samurai-row.left { animation-name: samurai-in-left; }
+    .samurai-row.right { animation-name: samurai-in-right; }
     @keyframes samurai-in-left {
       0% {opacity:0;transform:translateX(-80vw);}
       60%{opacity:.98;}
@@ -548,21 +548,8 @@ app.get('/', requireLogin, (req, res) => {
         <th>Time</th>
         <th>Status</th>
         <th>IP</th>
-        <th>Client</th>
+        <th>User Agent</th>
       </tr>
-      ${
-        logs.length === 0
-          ? `<tr class="samurai-row left"><td colspan="5" style="color:#ffa;">No data found yet.</td></tr>`
-          : logs.map((log, i) => `
-        <tr class="samurai-row ${i % 2 === 0 ? 'left' : 'right'}">
-          <td><b>${escape(log.day)}</b></td>
-          <td style="font-family:monospace;">${escape(log.time)}</td>
-          <td><span class="status-cell">${escape(log.status)}</span></td>
-          <td>${escape(log.ip)}</td>
-          <td style="color:#ffe18f;">${escape(log.userAgent || log.href || '')}</td>
-        </tr>
-        `).join('')
-      }
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗑️ DELETE ALL</button>
     <script>
@@ -581,7 +568,7 @@ app.get('/', requireLogin, (req, res) => {
         });
       });
 
-      // 🌸 سكريبت البتلات
+      // Sakura Petals Effect
       const canvas = document.getElementById('sakura-bg');
       const ctx = canvas.getContext('2d');
       let width = window.innerWidth, height = window.innerHeight;
@@ -654,6 +641,7 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
+
   `);
 });
 
