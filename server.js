@@ -546,7 +546,7 @@ app.get('/', requireLogin, (req, res) => {
 <body>
   <canvas id="sakura-bg"></canvas>
   <div class="samurai-glass">
-    <h1 class="samurai-title">武士 MILANO LOG 2200</h1>
+    <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
     <div class="samurai-divider"></div>
     <table>
       <tr>
