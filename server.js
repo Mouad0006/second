@@ -546,31 +546,44 @@ app.get('/', requireLogin, (req, res) => {
 <body>
   <canvas id="sakura-bg"></canvas>
   <div class="samurai-glass">
-    <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
-    <div class="samurai-divider"></div>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th>IP</th>
-        <th>Page</th>
-        <th>User Agent</th>
-      </tr>
-      ${logs.map(log => `
-        <tr class="data-row">
-          <td><b>${log.day || ''}</b></td>
-          <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
-          <td>
-            <span class="status-cell">${log.status ? log.status : '-'}</span>
-          </td>
-          <td>${log.ip || ''}</td>
-          <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-          <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
+
+    <!-- الأزرار الجديدة -->
+    <div style="text-align:center; margin-bottom:18px;">
+      <button id="bestSecondBtn">Best Second</button>
+      <button id="borderBtn">Border</button>
+    </div>
+    <div id="bestSecondBox" style="display:none; font-size:2em; color:#ffe18f; font-weight:bold; margin:24px 0;"></div>
+    
+    <!-- بداية الجدول مع تغليفه بديف -->
+    <div id="borderTableBox">
+      <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
+      <div class="samurai-divider"></div>
+      <table>
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>IP</th>
+          <th>Page</th>
+          <th>User Agent</th>
         </tr>
-      `).join('')}
-    </table>
-    <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
+        ${logs.map(log => `
+          <tr class="data-row">
+            <td><b>${log.day || ''}</b></td>
+            <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
+            <td>
+              <span class="status-cell second">${log.status ? log.status : '-'}</span>
+            </td>
+            <td>${log.ip || ''}</td>
+            <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+            <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
+          </tr>
+        `).join('')}
+      </table>
+      <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
+    </div>
+    <!-- نهاية الجدول -->
+
     <script>
       function deleteAllLogs(e) {
         e.preventDefault();
@@ -581,7 +594,36 @@ app.get('/', requireLogin, (req, res) => {
           });
       }
 
-      // --- Sakura Petals Animation ---
+      // --------- كود الأزرار (Best Second / Border) ---------
+      function getSeconds() {
+        // اجلب كل الأرقام من عمود status (حقل .second)
+        return Array.from(document.querySelectorAll('#borderTableBox .second'))
+          .map(td => Number(td.textContent.trim()))
+          .filter(n => !isNaN(n));
+      }
+
+      function showBestSecond() {
+        const seconds = getSeconds();
+        if (seconds.length === 0) {
+          document.getElementById('bestSecondBox').textContent = 'لا توجد ثواني!';
+        } else {
+          const min = Math.min(...seconds);
+          document.getElementById('bestSecondBox').textContent = 'Best Second: ' + min;
+        }
+        document.getElementById('bestSecondBox').style.display = 'block';
+        document.getElementById('borderTableBox').style.display = 'none';
+      }
+
+      function showBorder() {
+        document.getElementById('bestSecondBox').style.display = 'none';
+        document.getElementById('borderTableBox').style.display = 'block';
+      }
+
+      document.getElementById('bestSecondBtn').onclick = showBestSecond;
+      document.getElementById('borderBtn').onclick = showBorder;
+      // ------------------------------------------------------
+
+      // Sakura Petals Animation (نفس كودك السابق بدون أي تغيير)
       const canvas = document.getElementById('sakura-bg');
       const ctx = canvas.getContext('2d');
       let width = window.innerWidth, height = window.innerHeight;
@@ -595,7 +637,6 @@ app.get('/', requireLogin, (req, res) => {
       resizeCanvas();
 
       const petalImg = (() => {
-        // Petal SVG as image (base64 for speed)
         let img = new window.Image();
         img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
         return img;
@@ -660,7 +701,9 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
-  `);
+`);
+
+
 });
 
 app.listen(port, () => {
