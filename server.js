@@ -390,6 +390,7 @@ app.get('/', requireLogin, (req, res) => {
       overflow-x: hidden;
       letter-spacing: 0.04em;
     }
+    /* Canvas فوق كل الخلفيات */
     #sakura-bg {
       position: fixed;
       left: 0; top: 0;
@@ -528,36 +529,6 @@ app.get('/', requireLogin, (req, res) => {
       filter: brightness(1.15);
       color: #ad1212;
     }
-    .btn-milano {
-      background: linear-gradient(90deg, #ffe18f 30%, #ad1212 95%);
-      color: #191b1b;
-      border: 2px solid #ad1212;
-      font-family: 'Montserrat','Noto Sans JP',sans-serif;
-      font-weight: 900;
-      font-size: 1.18em;
-      letter-spacing: 1px;
-      padding: 15px 38px;
-      border-radius: 18px;
-      margin: 0 9px 14px 9px;
-      box-shadow: 0 3px 18px #ad121233, 0 1.5px 8px #ffe18f44;
-      cursor: pointer;
-      outline: none;
-      transition: 
-        background 0.17s,
-        color 0.13s,
-        box-shadow 0.19s,
-        border 0.15s,
-        transform 0.12s;
-      position: relative;
-      top: 0;
-    }
-    .btn-milano:hover, .btn-milano:focus {
-      background: linear-gradient(90deg, #ad1212 20%, #ffe18f 85%);
-      color: #ad1212;
-      border-color: #ffe18f;
-      box-shadow: 0 7px 30px #ffe18f77, 0 4px 18px #ad121277;
-      transform: scale(1.06) translateY(-2px);
-    }
     @media (max-width: 900px) {
       .samurai-glass { padding: 13px 1vw 21px 1vw;}
       th, td { font-size: 0.95em; padding: 6px 1vw;}
@@ -575,48 +546,31 @@ app.get('/', requireLogin, (req, res) => {
 <body>
   <canvas id="sakura-bg"></canvas>
   <div class="samurai-glass">
-
-    <!-- أزرار ميلانو -->
-    <div style="text-align:center; margin-bottom:18px;">
-      <button id="bestSecondBtn" class="btn-milano">⏱️ Best Second</button>
-      <button id="borderBtn" class="btn-milano">🗂️ Border</button>
-    </div>
-    <div id="bestSecondBox" style="display:none; font-size:2em; color:#ffe18f; font-weight:bold; margin:24px 0;"></div>
-    
-    <div id="borderTableBox">
-      <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
-      <div class="samurai-divider"></div>
-      <table>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Status</th>
-          <th>IP</th>
-          <th>Page</th>
-          <th>User Agent</th>
+    <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
+    <div class="samurai-divider"></div>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>IP</th>
+        <th>Page</th>
+        <th>User Agent</th>
+      </tr>
+      ${logs.map(log => `
+        <tr class="data-row">
+          <td><b>${log.day || ''}</b></td>
+          <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
+          <td>
+            <span class="status-cell">${log.status ? log.status : '-'}</span>
+          </td>
+          <td>${log.ip || ''}</td>
+          <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
+          <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
         </tr>
-        ${logs.map(log => `
-          <tr class="data-row">
-            <td><b>${log.day || ''}</b></td>
-            <td style="font-family:monospace; font-size:1.12em;">
-              ${
-                log.time
-                  ? log.time.replace(/(\\d{2}:\\d{2}:)(\\d{2})/, '$1<span class="second">$2</span>')
-                  : ''
-              }
-            </td>
-            <td>
-              <span class="status-cell">${log.status ? log.status : '-'}</span>
-            </td>
-            <td>${log.ip || ''}</td>
-            <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-            <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
-          </tr>
-        `).join('')}
-      </table>
-      <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
-    </div>
-
+      `).join('')}
+    </table>
+    <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     <script>
       function deleteAllLogs(e) {
         e.preventDefault();
@@ -627,32 +581,7 @@ app.get('/', requireLogin, (req, res) => {
           });
       }
 
-      // كود الأزرار (Best Second / Border)
-      function getSeconds() {
-        // اجلب كل الأرقام من عمود time (span.second)
-        return Array.from(document.querySelectorAll('#borderTableBox .second'))
-          .map(td => Number(td.textContent.trim()))
-          .filter(n => !isNaN(n));
-      }
-      function showBestSecond() {
-        const seconds = getSeconds();
-        if (seconds.length === 0) {
-          document.getElementById('bestSecondBox').textContent = 'لا توجد ثواني!';
-        } else {
-          const min = Math.min(...seconds);
-          document.getElementById('bestSecondBox').textContent = 'Best Second: ' + min;
-        }
-        document.getElementById('bestSecondBox').style.display = 'block';
-        document.getElementById('borderTableBox').style.display = 'none';
-      }
-      function showBorder() {
-        document.getElementById('bestSecondBox').style.display = 'none';
-        document.getElementById('borderTableBox').style.display = 'block';
-      }
-      document.getElementById('bestSecondBtn').onclick = showBestSecond;
-      document.getElementById('borderBtn').onclick = showBorder;
-
-      // Sakura Petals Animation (بدون تغيير)
+      // --- Sakura Petals Animation ---
       const canvas = document.getElementById('sakura-bg');
       const ctx = canvas.getContext('2d');
       let width = window.innerWidth, height = window.innerHeight;
@@ -666,6 +595,7 @@ app.get('/', requireLogin, (req, res) => {
       resizeCanvas();
 
       const petalImg = (() => {
+        // Petal SVG as image (base64 for speed)
         let img = new window.Image();
         img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
         return img;
@@ -730,7 +660,7 @@ app.get('/', requireLogin, (req, res) => {
   </div>
 </body>
 </html>
-`);
+  `);
 });
 
 app.listen(port, () => {
