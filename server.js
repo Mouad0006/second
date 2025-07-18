@@ -599,15 +599,23 @@ app.get('/', requireLogin, (req, res) => {
         ${logs.map(log => `
           <tr class="data-row">
             <td><b>${log.day || ''}</b></td>
-            <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
+            <td style="font-family:monospace; font-size:1.12em;">
+              ${
+                 log.time
+                 ? log.time.replace(/(\\d{2}:\\d{2}:)(\\d{2})/, '$1<span class="second">$2</span>')
+                 : ''
+               }
+            </td>
             <td>
-              <span class="status-cell second">${log.status ? log.status : '-'}</span>
+                <span class="status-cell">${log.status ? log.status : '-'}</span>
             </td>
             <td>${log.ip || ''}</td>
             <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
             <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
           </tr>
         `).join('')}
+
+
       </table>
       <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     </div>
