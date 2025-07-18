@@ -528,7 +528,6 @@ app.get('/', requireLogin, (req, res) => {
       filter: brightness(1.15);
       color: #ad1212;
     }
-    /* --- أزرار ميلانو الجديدة --- */
     .btn-milano {
       background: linear-gradient(90deg, #ffe18f 30%, #ad1212 95%);
       color: #191b1b;
@@ -601,21 +600,19 @@ app.get('/', requireLogin, (req, res) => {
             <td><b>${log.day || ''}</b></td>
             <td style="font-family:monospace; font-size:1.12em;">
               ${
-                 log.time
-                 ? log.time.replace(/(\\d{2}:\\d{2}:)(\\d{2})/, '$1<span class="second">$2</span>')
-                 : ''
-               }
+                log.time
+                  ? log.time.replace(/(\\d{2}:\\d{2}:)(\\d{2})/, '$1<span class="second">$2</span>')
+                  : ''
+              }
             </td>
             <td>
-                <span class="status-cell">${log.status ? log.status : '-'}</span>
+              <span class="status-cell">${log.status ? log.status : '-'}</span>
             </td>
             <td>${log.ip || ''}</td>
             <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
             <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
           </tr>
         `).join('')}
-
-
       </table>
       <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
     </div>
@@ -632,7 +629,7 @@ app.get('/', requireLogin, (req, res) => {
 
       // كود الأزرار (Best Second / Border)
       function getSeconds() {
-        // اجلب كل الأرقام من عمود status (حقل .second)
+        // اجلب كل الأرقام من عمود time (span.second)
         return Array.from(document.querySelectorAll('#borderTableBox .second'))
           .map(td => Number(td.textContent.trim()))
           .filter(n => !isNaN(n));
@@ -734,10 +731,6 @@ app.get('/', requireLogin, (req, res) => {
 </body>
 </html>
 `);
-
-
-
-
 });
 
 app.listen(port, () => {
