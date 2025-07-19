@@ -702,6 +702,21 @@ app.get('/slot-logs', requireLogin, (req, res) => {
     </table>
   `);
 });
+app.post('/log-slot-success', (req, res) => {
+  const pathLog = path.join(__dirname, 'slot_success_full.csv');
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const { isoTime, userAgent, formData } = req.body;
+
+  const logEntry = {
+    isoTime,
+    ip,
+    userAgent,
+    formData
+  };
+
+  fs.appendFileSync(pathLog, JSON.stringify(logEntry) + "\n");
+  res.json({ ok: true });
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
