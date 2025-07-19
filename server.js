@@ -702,6 +702,60 @@ app.get('/slot-logs', requireLogin, (req, res) => {
     </table>
   `);
 });
+app.get('/slot-confirmed', requireLogin, (req, res) => {
+  const pathLog = path.join(__dirname, 'slot_success_full.csv');
+  let logs = [];
+  if (fs.existsSync(pathLog)) {
+    logs = fs.readFileSync(pathLog, 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .reverse();
+  }
+
+  const tableRows = logs.map(log => {
+    const date = new Date(log.isoTime || "").toLocaleString();
+    const ip = log.ip || "";
+    const ua = log.userAgent || "";
+    const form = log.formData || {};
+    const dateText = form["ResponseData"] ? JSON.parse(form["ResponseData"])["txtAppointmentDate"] : "-";
+    const slot = form["ResponseData"] ? JSON.parse(form["ResponseData"])["ddlSlot"] : "-";
+    return `
+      <tr>
+        <td>${date}</td>
+        <td>${ip}</td>
+        <td>${ua}</td>
+        <td>${form["Data"] || "-"}</td>
+        <td>${dateText}</td>
+        <td>${slot}</td>
+      </tr>
+    `;
+  }).join('');
+
+  res.send(`
+    <h2 style="font-family:monospace">✅ Confirmed Slot Bookings</h2>
+    <table border="1" cellpadding="6" cellspacing="0">
+      <tr>
+        <th>Date</th>
+        <th>IP</th>
+        <th>User Agent</th>
+        <th>Data</th>
+        <th>Appointment Date</th>
+        <th>Slot</th>
+      </tr>
+      ${tableRows}
+    </table>
+  `);
+});
+
+
 app.post('/log-slot-success', (req, res) => {
   const pathLog = path.join(__dirname, 'slot_success_full.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
