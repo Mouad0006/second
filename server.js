@@ -662,6 +662,46 @@ app.get('/', requireLogin, (req, res) => {
 </html>
   `);
 });
+app.post('/MAR/Appointment/SlotSelection/.js', (req, res) => {
+  const pathLog = path.join(__dirname, 'slotselection_log.csv');
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const userAgent = req.headers['user-agent'] || '';
+  const now = new Date();
+  const isoTime = now.toISOString();
+  const localTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  const logLine = `${isoTime},${ip},${localTime},${userAgent},${req.originalUrl}\n`;
+  fs.appendFileSync(pathLog, logLine);
+
+  // الرد يكون رمز 200 وهمي، لأن السيرفر فقط يسجل ولا يعالج فعليًا
+  res.status(200).send('Logged');
+});
+app.get('/slot-logs', requireLogin, (req, res) => {
+  const pathLog = path.join(__dirname, 'slotselection_log.csv');
+  let logs = [];
+  if (fs.existsSync(pathLog)) {
+    logs = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean).map(line => {
+      const [isoTime, ip, localTime, userAgent, url] = line.split(',');
+      return { isoTime, ip, localTime, userAgent, url };
+    }).reverse();
+  }
+
+  res.send(`
+    <h2 style="font-family: monospace">SlotSelection Logs</h2>
+    <table border="1" cellpadding="6" cellspacing="0">
+      <tr><th>Date</th><th>IP</th><th>Time</th><th>User Agent</th><th>URL</th></tr>
+      ${logs.map(log => `
+        <tr>
+          <td>${log.isoTime}</td>
+          <td>${log.ip}</td>
+          <td>${log.localTime}</td>
+          <td style="max-width: 300px; word-break: break-all;">${log.userAgent}</td>
+          <td>${log.url}</td>
+        </tr>
+      `).join('')}
+    </table>
+  `);
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
