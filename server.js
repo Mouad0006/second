@@ -337,12 +337,19 @@ app.post('/log', (req, res) => {
   res.json({ ok: true });
 });
 
-// Route حذف كل اللوجات
-app.post('/delete-all', (req, res) => {
-  const pathLog = path.join(__dirname, 'applicant_log.csv');
-  if (fs.existsSync(pathLog)) fs.unlinkSync(pathLog);
-  res.json({ status: 'all_deleted' });
+app.post('/delete-all', requireLogin, (req, res) => {
+  try {
+    const files = ['applicant_log.csv', 'slot_success_full.csv'];
+    for (const file of files) {
+      const fullPath = path.join(__dirname, file);
+      if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+    }
+    res.json({ status: 'all_deleted' });
+  } catch (e) {
+    res.json({ status: 'error', message: e.message });
+  }
 });
+
 
 app.get('/', requireLogin, (req, res) => {
   const pathLog1 = path.join(__dirname, 'applicant_log.csv');
