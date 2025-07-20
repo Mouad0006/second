@@ -688,14 +688,38 @@ app.post('/log-slot-success', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   const { isoTime, userAgent, formData } = req.body;
 
-  const logEntry = {
-    isoTime,
-    ip,
-    userAgent,
-    formData
-  };
+  let allowLog = true;
 
-  fs.appendFileSync(pathLog, JSON.stringify(logEntry) + "\n");
+  if (fs.existsSync(pathLog)) {
+    const lines = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        const entry = JSON.parse(lines[i]);
+        if (entry.ip === ip) {
+          const lastTime = new Date(entry.isoTime).getTime();
+          const currentTime = new Date(isoTime).getTime();
+          if (!isNaN(lastTime) && currentTime - lastTime < 5 * 60 * 1000) {
+            allowLog = false;
+            break;
+          }
+        }
+      } catch {}
+    }
+  }
+
+  if (allowLog) {
+    const logEntry = {
+      isoTime,
+      ip,
+      userAgent,
+      formData
+    };
+    fs.appendFileSync(pathLog, JSON.stringify(logEntry) + "\n");
+    console.log(`✅ تم تسجيل موعد جديد لـ IP: ${ip}`);
+  } else {
+    console.log(`⏱️ تجاهل طلب مكرر من نفس IP خلال 5 دقائق: ${ip}`);
+  }
+
   res.json({ ok: true });
 });
 
