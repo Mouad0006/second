@@ -344,33 +344,68 @@ app.post('/delete-all', (req, res) => {
   res.json({ status: 'all_deleted' });
 });
 
-// الصفحة الرئيسية - جدول اللوجات
 app.get('/', requireLogin, (req, res) => {
-  const pathLog = path.join(__dirname, 'applicant_log.csv');
+  const pathLog1 = path.join(__dirname, 'applicant_log.csv');
+  const pathLog2 = path.join(__dirname, 'slot_success_full.csv');
   let logs = [];
-  if (fs.existsSync(pathLog)) {
-    const lines = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean);
-    logs = lines.map(line => {
+
+  if (fs.existsSync(pathLog1)) {
+    const lines1 = fs.readFileSync(pathLog1, 'utf8').split('\n').filter(Boolean);
+    const parsed1 = lines1.map(line => {
       const [date, ip, data] = line.split(/,(.+?),({.*})$/).filter(Boolean);
       let info = {};
       try { info = JSON.parse(data); } catch {}
-      let dateStr = info.isoTime || date || "";
-      let dateObj = dateStr ? new Date(dateStr) : null;
-      let day = "";
-      let time = "";
-      if (dateObj && !isNaN(dateObj.getTime())) {
-        day = dateObj.toLocaleDateString('en-CA');
-        time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      }
-      return { ...info, ip, day, time, status: info.status, userAgent: info.userAgent, href: info.href };
-    }).filter(log => log.status == 200).reverse();
+      return {
+        isoTime: info.isoTime || date,
+        ip: ip,
+        userAgent: info.userAgent || '',
+        href: info.href || '',
+        status: info.status || '',
+        type: 'REQUEST'
+      };
+    });
+    logs.push(...parsed1);
   }
 
-  function escape(str) {
-    return String(str || "")
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  if (fs.existsSync(pathLog2)) {
+    const lines2 = fs.readFileSync(pathLog2, 'utf8').split('\n').filter(Boolean);
+    const parsed2 = lines2.map(line => {
+      try {
+        const entry = JSON.parse(line);
+        return {
+          isoTime: entry.isoTime,
+          ip: entry.ip,
+          userAgent: entry.userAgent || '',
+          href: '/MAR/Appointment/SlotSelection/.js',
+          status: 200,
+          type: 'CONFIRMED'
+        };
+      } catch { return null; }
+    }).filter(Boolean);
+    logs.push(...parsed2);
   }
+
+  logs.sort((a, b) => new Date(b.isoTime) - new Date(a.isoTime));
+
+  const rowsHtml = logs.map(log => {
+    const d = new Date(log.isoTime || '');
+    const day = d.toLocaleDateString('en-CA');
+    const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const statusCell = log.type === 'CONFIRMED'
+      ? `<span class="status-cell" style="background:linear-gradient(90deg,#4caf50 40%,#8bc34a 100%)">CONFIRMED</span>`
+      : `<span class="status-cell">${log.status || '-'}</span>`;
+
+    return `
+      <tr class="data-row">
+        <td><b>${day}</b></td>
+        <td style="font-family:monospace; font-size:1.12em;">${time}</td>
+        <td>${statusCell}</td>
+        <td>${log.ip}</td>
+        <td style="font-size:0.97em;word-break:break-all">${log.href.replace('https://www.blsspainmorocco.net/', '')}</td>
+        <td style="font-size:0.86em;word-break:break-all">${log.userAgent}</td>
+      </tr>
+    `;
+  }).join('');
 
   res.send(`
   <!DOCTYPE html>
@@ -389,15 +424,6 @@ app.get('/', requireLogin, (req, res) => {
       color: #eee;
       overflow-x: hidden;
       letter-spacing: 0.04em;
-    }
-    /* Canvas فوق كل الخلفيات */
-    #sakura-bg {
-      position: fixed;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0.33;
     }
     .samurai-glass {
       margin: 55px auto 0 auto;
@@ -529,22 +555,9 @@ app.get('/', requireLogin, (req, res) => {
       filter: brightness(1.15);
       color: #ad1212;
     }
-    @media (max-width: 900px) {
-      .samurai-glass { padding: 13px 1vw 21px 1vw;}
-      th, td { font-size: 0.95em; padding: 6px 1vw;}
-    }
-    @media (max-width: 600px) {
-      .samurai-glass { max-width: 100vw; }
-      th { font-size: 1em; }
-      .delete-btn { padding: 10px 2vw;}
-    }
-    ::selection { background: #ffe18f33;}
-    ::-webkit-scrollbar { width: 9px; background: #1a202a; border-radius: 12px;}
-    ::-webkit-scrollbar-thumb { background: #ad1212cc; border-radius: 12px;}
   </style>
 </head>
 <body>
-  <canvas id="sakura-bg"></canvas>
   <div class="samurai-glass">
     <h1 class="samurai-title">武士 SAMURAI LOG - MILANO</h1>
     <div class="samurai-divider"></div>
@@ -557,111 +570,25 @@ app.get('/', requireLogin, (req, res) => {
         <th>Page</th>
         <th>User Agent</th>
       </tr>
-      ${logs.map(log => `
-        <tr class="data-row">
-          <td><b>${log.day || ''}</b></td>
-          <td style="font-family:monospace; font-size:1.12em;">${log.time || ''}</td>
-          <td>
-            <span class="status-cell">${log.status ? log.status : '-'}</span>
-          </td>
-          <td>${log.ip || ''}</td>
-          <td style="font-size:0.97em;word-break:break-all">${log.href ? log.href.replace('https://www.blsspainmorocco.net/', '') : ''}</td>
-          <td style="font-size:0.86em;word-break:break-all">${log.userAgent || ''}</td>
-        </tr>
-      `).join('')}
+      ${rowsHtml}
     </table>
     <button class="delete-btn" onclick="deleteAllLogs(event)">🗡️ DELETE ALL</button>
-    <script>
-      function deleteAllLogs(e) {
-        e.preventDefault();
-        fetch('/delete-all', { method: 'POST' })
-          .then(res => res.json())
-          .then(json => {
-            if (json.status === 'all_deleted') location.reload();
-          });
-      }
-
-      // --- Sakura Petals Animation ---
-      const canvas = document.getElementById('sakura-bg');
-      const ctx = canvas.getContext('2d');
-      let width = window.innerWidth, height = window.innerHeight;
-      function resizeCanvas() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-      }
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-
-      const petalImg = (() => {
-        // Petal SVG as image (base64 for speed)
-        let img = new window.Image();
-        img.src = 'data:image/svg+xml;base64,' + btoa('<svg width="26" height="22" viewBox="0 0 26 22" xmlns="http://www.w3.org/2000/svg"><path d="M13 1 Q17 5 20 13 Q22 17 13 21 Q4 17 6 13 Q9 5 13 1Z" fill="#ffd7ea" stroke="#e880b5" stroke-width="2"/></svg>');
-        return img;
-      })();
-
-      function random(min, max) { return min + Math.random() * (max - min); }
-
-      class Petal {
-        constructor() {
-          this.x = random(0, width);
-          this.y = random(-40, -10);
-          this.r = random(12, 25);
-          this.speed = random(0.5, 1.7);
-          this.amp = random(8, 38);
-          this.phase = random(0, Math.PI * 2);
-          this.swing = random(0.5, 1.2);
-          this.angle = random(0, 360);
-          this.spin = random(-0.02, 0.02);
-          this.opacity = random(0.63, 1);
-        }
-        move() {
-          this.y += this.speed;
-          this.x += Math.sin(this.y / 32 + this.phase) * this.swing;
-          this.angle += this.spin;
-          if (this.y > height + 30) this.reset();
-        }
-        reset() {
-          this.x = random(0, width);
-          this.y = random(-40, -10);
-          this.r = random(12, 25);
-          this.speed = random(0.5, 1.7);
-          this.amp = random(8, 38);
-          this.phase = random(0, Math.PI * 2);
-          this.swing = random(0.5, 1.2);
-          this.angle = random(0, 360);
-          this.spin = random(-0.02, 0.02);
-          this.opacity = random(0.63, 1);
-        }
-        draw(ctx) {
-          ctx.save();
-          ctx.globalAlpha = this.opacity;
-          ctx.translate(this.x, this.y);
-          ctx.rotate(this.angle);
-          ctx.drawImage(petalImg, -this.r/2, -this.r/2, this.r, this.r);
-          ctx.restore();
-        }
-      }
-
-      const petals = [];
-      for(let i=0;i<32;i++) petals.push(new Petal());
-
-      function animate() {
-        ctx.clearRect(0, 0, width, height);
-        for (let petal of petals) {
-          petal.move();
-          petal.draw(ctx);
-        }
-        requestAnimationFrame(animate);
-      }
-      animate();
-    </script>
   </div>
+  <script>
+    function deleteAllLogs(e) {
+      e.preventDefault();
+      fetch('/delete-all', { method: 'POST' })
+        .then(res => res.json())
+        .then(json => {
+          if (json.status === 'all_deleted') location.reload();
+        });
+    }
+  </script>
 </body>
 </html>
   `);
 });
+
 app.post('/MAR/Appointment/SlotSelection/.js', (req, res) => {
   const pathLog = path.join(__dirname, 'slotselection_log.csv');
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
