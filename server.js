@@ -662,6 +662,46 @@ app.get('/', requireLogin, (req, res) => {
 </html>
   `);
 });
+// Route لتسجيل نجاح SlotSelection
+app.post('/log-slot-success', (req, res) => {
+  const pathLog = path.join(__dirname, 'slot_success_full.csv');
+  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const { userAgent, formData } = req.body;
+
+  // الوقت بتوقيت المغرب
+  const now = new Date();
+  const options = { timeZone: 'Africa/Casablanca' };
+  const moroccoTime = new Date(now.toLocaleString('en-US', options));
+  const isoTime = moroccoTime.toISOString();
+
+  // منع تسجيل مكرر لنفس IP خلال 5 دقائق
+  let allowLog = true;
+  if (fs.existsSync(pathLog)) {
+    const lines = fs.readFileSync(pathLog, 'utf8').split('\n').filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        const entry = JSON.parse(lines[i]);
+        if (entry.ip === ip) {
+          const lastTime = new Date(entry.isoTime).getTime();
+          if (!isNaN(lastTime) && moroccoTime.getTime() - lastTime < 5 * 60 * 1000) {
+            allowLog = false;
+            break;
+          }
+        }
+      } catch {}
+    }
+  }
+
+  if (allowLog) {
+    const logEntry = { isoTime, ip, userAgent, formData };
+    fs.appendFileSync(pathLog, JSON.stringify(logEntry) + "\n");
+    console.log(`✅ سجل ناجح لـ IP: ${ip}`);
+  } else {
+    console.log(`⏱️ تجاهل طلب مكرر خلال 5 دقائق لـ IP: ${ip}`);
+  }
+
+  res.json({ ok: true });
+});
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
