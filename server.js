@@ -638,7 +638,7 @@ app.post('/log-slot-success', (req, res) => {
       } catch {}
     }
   }
-
+}
   if (allowLog) {
     const logEntry = { isoTime, ip, userAgent, formData };
     fs.appendFileSync(pathLog, JSON.stringify(logEntry) + "\n");
